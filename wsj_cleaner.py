@@ -281,20 +281,19 @@ class WSJCleaner:
     def upsert_profile_to_database(self):
         if len(self.new_format_symbols)>0:
             self.profile_data['wsj_format'] = self.profile_data['wsj_format'].astype(int)
-            records = self.profile_data.loc[
-                self.profile_data['symbol'].isin(list(self.new_format_symbols))
-                ].to_dict("records")
-            try:
-                for record in records:
+            records_df = self.profile_data.loc[self.profile_data['symbol'].isin(list(self.new_format_symbols))]
+            for format in records_df.wsj_format.unique().tolist():
+                symbols = records_df.loc[records_df['wsj_format']==format].symbol.unique().tolist()
+                try:
                     self.supabase_client.table("idx_company_profile")\
-                    .update({'wsj_format':record['wsj_format']})\
-                    .eq('symbol', record['symbol'])\
+                    .update({'wsj_format': format})\
+                    .in_('symbol', symbols)\
                     .execute()
-                return 1
-            except Exception as e:
-                self.logger.warning('Upserting wsj_format data with Supabase client failed. Saving to CSV file ...')
-                self.save_profile_to_csv()
-                return -1
+                except Exception as e:
+                    self.logger.warning('Upserting wsj_format data with Supabase client failed. Saving to CSV file ...')
+                    self.save_profile_to_csv()
+                    return -1
+            return 1
         return 0
     
     def save_data_to_csv(self):
@@ -314,5 +313,6 @@ class WSJCleaner:
             df = self.profile_data.loc[self.profile_data['symbol'].isin(list(self.clashed_symbols))]
             df.to_csv(f"data/wsj_format_data(format_change).csv", index=False)  
         else:
-            self.profile_data.to_csv(f"data/wsj_format_data.csv", index=False)  
+            df = self.profile_data.loc[self.profile_data['symbol'].isin(list(self.new_format_symbols))]
+            df.to_csv(f"data/wsj_format_data.csv", index=False)  
             
