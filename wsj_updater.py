@@ -125,7 +125,7 @@ def read_csv_file(file_path):
         raise FileNotFoundError(f"Could not find the file '{file_path}'. Please make sure the file exists and the path is correct.") from e
 
 class WSJScraper:
-    def __init__(self, symbols: list, statement: str, quarter: bool, target_metrics: list, logger, max_retry=2,
+    def __init__(self, symbols: list, statement: str, quarter: bool, target_metrics: list, logger, max_retry=3,
                  save_every_symbol=False, append_file=None, completed_symbols_file=None, latest_date_df=None) -> None:
         self.symbols = symbols
         self.statement = statement
