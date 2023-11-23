@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import logging
+import time
 from datetime import datetime as dt
 
 class WSJCleaner: 
@@ -211,20 +212,20 @@ class WSJCleaner:
             self.clean_data = self._enrich_columns(self.clean_data)
             self.clean_data = self.clean_data[self.columns]
             self.clean_data = self.clean_data.replace('-',None)
-            self.save_data_to_csv()
             ### Casting for upsert to db
             cast_cols = set(self.columns)
             float_cols = ['diluted_eps']
             int_cols = list(cast_cols.difference(set(['symbol','date']+float_cols)))
             self.clean_data[int_cols] = self.clean_data[int_cols].astype(float).astype('Int64')
-            self.clean_data[float_cols] = self.clean_data[float_cols].astype(float)
+            self.clean_data[float_cols] = self.clean_data[float_cols].astype('float64')
+            self.clean_data = self.clean_data.drop_duplicates()
             self.clean_flag = True
             self.logger.info('Finished cleaning')
         except Exception as e:
             self.logger.error(f'Failed to enrich columns. Error: {e}')
             return
     
-    def save_data_to_database(self):
+    def upsert_data_to_database(self):
         if self.clean_flag and self.supabase_client:
             def convert_df_to_records(data):
                 temp_df = data.copy()
@@ -237,33 +238,62 @@ class WSJCleaner:
                 temp_df = temp_df.replace({np.nan: None})
                 records = temp_df.to_dict("records")
                 return records
+            def batch_upsert(records, batch_size=100, max_retry=3):
+                for i in range(0, len(records), batch_size):
+                    retry_count = 0
+                    while retry_count < max_retry:
+                        try:
+                            self.supabase_client.table("idx_financials_quarterly_wsj").upsert(
+                                records[i:i+batch_size], returning="minimal", on_conflict="symbol, date"
+                            ).execute()
+                            break
+                        except Exception as e:
+                            self.logger.warning(f'Upserting financial data with Supabase client failed. Retrying ...')
+                            retry_count += 1
+                            if retry_count == max_retry:
+                                self.save_data_to_csv()
+                                return False, str(e)
+                            time.sleep(5)
             temp_df = self.clean_data.copy()
             records = convert_df_to_records(temp_df)
-            try:
-                self.supabase_client.table("idx_financials_quarterly_wsj").upsert(
-                    records, returning="minimal", on_conflict="symbol, date"
-                ).execute()
-                return True
-            except Exception as e:
-                self.logger.warning('Upserting financial data with Supabase client failed. Saving to CSV file ...')
-                self.save_data_to_csv()
-                return False
+            if len(records)<1000:
+                try:
+                    self.supabase_client.table("idx_financials_quarterly_wsj").upsert(
+                        records, returning="minimal", on_conflict="symbol, date"
+                    ).execute()
+                    return True
+                except Exception as e:
+                    self.logger.warning(f'Upserting financial data with Supabase client failed. Retrying ...')
+                    self.save_data_to_csv()
+                    return False
+            else:
+                db_success_flag, msg = batch_upsert(records)
+                if db_success_flag:
+                    return True
+                else:
+                    self.logger.warning(f'Failed to upsert data to db. Error: {msg}')
+                    return False
         else:
             self.logger.info("Cannot upsert data to db, cleaning was unsuccessful. Saving to CSV file ...")
             self.save_data_to_csv()
             return False
     
-    def save_profile_to_database(self):
+    def upsert_profile_to_database(self):
         if len(self.new_format_symbols)>0:
+            self.profile_data['wsj_format'] = self.profile_data['wsj_format'].astype(int)
             records = self.profile_data.loc[
                 self.profile_data['symbol'].isin(list(self.new_format_symbols))
                 ].to_dict("records")
             try:
-                self.supabase_client.table('idx_company_profile').upsert(records, returning="minimal", on_conflict="symbol").execute()
+                for record in records:
+                    self.supabase_client.table("idx_company_profile")\
+                    .update({'wsj_format':record['wsj_format']})\
+                    .eq('symbol', record['symbol'])\
+                    .execute()
                 return 1
             except Exception as e:
                 self.logger.warning('Upserting wsj_format data with Supabase client failed. Saving to CSV file ...')
-                self.save_data_to_csv()
+                self.save_profile_to_csv()
                 return -1
         return 0
     
@@ -277,8 +307,12 @@ class WSJCleaner:
         else:
             self.logger.warning("Cleaning was unsucessful. No cleaned data was saved")
             
+    def save_profile_to_csv(self):
+        self.profile_data['wsj_format'] = self.profile_data['wsj_format'].astype(int)
+        self.logger.info("Saving changed wsj_format data to a local directory")
         if self.changed_flag:
-            self.logger.info("Saving changed wsj_format data to a local directory")
             df = self.profile_data.loc[self.profile_data['symbol'].isin(list(self.clashed_symbols))]
+            df.to_csv(f"data/wsj_format_data(format_change).csv", index=False)  
+        else:
             self.profile_data.to_csv(f"data/wsj_format_data.csv", index=False)  
             
