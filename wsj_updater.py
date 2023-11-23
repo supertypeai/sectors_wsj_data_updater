@@ -1,9 +1,11 @@
 import logging
+from logging.handlers import TimedRotatingFileHandler
 import requests
 import pandas as pd
 import argparse
 import os
 import itertools
+import time
 from dotenv import load_dotenv
 from pathlib import Path
 from bs4 import BeautifulSoup
@@ -96,7 +98,7 @@ fiscal_year = {
     'January-December':'31-Dec-'
 }
 
-CALLS = 15
+CALLS = 12
 TIME_PERIOD = 5
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36'}
 
@@ -122,7 +124,7 @@ def read_csv_file(file_path):
     except FileNotFoundError as e:
         raise FileNotFoundError(f"Could not find the file '{file_path}'. Please make sure the file exists and the path is correct.") from e
 
-class wsj_scraper:
+class WSJScraper:
     def __init__(self, symbols: list, statement: str, quarter: bool, target_metrics: list, logger, max_retry=2,
                  save_every_symbol=False, append_file=None, completed_symbols_file=None, latest_date_df=None) -> None:
         self.symbols = symbols
@@ -149,6 +151,8 @@ class wsj_scraper:
     @sleep_and_retry               
     @limits(calls=CALLS, period=TIME_PERIOD)
     def get_statement_data(self) -> None:
+        symbol_dd=None
+        df=pd.DataFrame()
         def check_dbdate_is_latest(symbol, wsj_date):
             if self.latest_date_df is None:
                 return False, None
@@ -234,7 +238,6 @@ class wsj_scraper:
                 eps_true = True if 'eps' in col_name.lower() else False
                 # get the column values for this symbol 
                 symbol_dict[col_name] += [convert_abbr(col_values[i], eps_true) for i in range(data_length)]
-
         period = '/quarter' if self.quarter else '/annual'
         if self.append_file:
             done_symbols = set(read_csv_file(self.completed_symbols_file)['symbol'].to_list())
@@ -257,13 +260,14 @@ class wsj_scraper:
                 while i < self.max_retry:
                     response = requests.get(url, allow_redirects=True, headers=headers)
                     soup = BeautifulSoup(response.text, 'lxml')
-                    table_div = soup.find('div', {'data-module-zone':self.statement.replace('-','_')})
-                    if table_div.find('div', {'id':'cr_cashflow'}) is not None:
-                        tables = table_div.find('div', {'id':'cr_cashflow'}).find_all('div', recursive=False)[1:]
+                    table_div = soup.find('div', {'data-module-zone':self.statement.replace('-','_')}).find('div', {'id':'cr_cashflow'})
+                    if table_div.find_all('div', recursive=False) is not None:
+                        tables = table_div.find_all('div', recursive=False)[1:]
                         i = self.max_retry
                         break
                     i += 1
                     self.logger.debug(f'Retrying request to url for {symbol}')
+                    time.sleep(5)
             except AttributeError as e:
                 handle_error(self.logger, f'Page does not exist for {symbol}.')
                 self.missing_symbols.add(symbol)
@@ -319,60 +323,63 @@ class wsj_scraper:
                     handle_error(self.logger, f'Cannot find table3 for {symbol} table1-2 canceled, error: {e}')
                     continue
                 
-            result_colnames = set(list(self.result_dict.keys()))
-            symbol_colnames = set(list(symbol_dd.keys()))
-            # get the column names difference between the result and the current ticker
-            nonexist_colnames = list(result_colnames.difference(symbol_colnames))
-            self.result_dict['symbol'] += symbol_dd['symbol']
-            self.result_dict['date'] += symbol_dd['date']
-            cur_len = len(self.result_dict['symbol'])
-            for col in list(symbol_dd.keys()):
-                if col=='symbol' or col=='date':
-                    continue
-                elif (len(self.result_dict[col])+len(symbol_dd[col]))!=cur_len:
-                    self.result_dict[col] += list(itertools.repeat(None, (cur_len - len(self.result_dict[col]))))
-                    self.result_dict[col] += symbol_dd[col]
-                else:   
-                    self.result_dict[col] += symbol_dd[col]
-        # check for columns that doesn't exist for this symbol
-            if len(nonexist_colnames)>0:
-                # self.logger.debug('Found non-existing columns')
-                for col in nonexist_colnames:
-                    self.result_dict[col] += list(itertools.repeat(None, (len(self.result_dict['symbol']) - len(self.result_dict[col]))))
-            
-            df = pd.DataFrame(self.result_dict)
-            if self.append_file:
-                df = df.loc[df['symbol']==symbol]
-                comp_df = read_csv_file(self.append_file)
-                cols = comp_df.columns.to_list()
-                flag = False
-                try:
-                    df=df[cols]
-                    assert df.columns==comp_df.columns
-                except AssertionError as e:
-                    handle_error(self.logger, 'Columns do not match (1)')
-                    flag=True
-                if flag:
-                    cur_colnames = set(df.columns.to_list())
-                    data_colnames = set(cols)
-                    # get the column names difference between the result and the current ticker
-                    nonexist_colnames = list(data_colnames.difference(cur_colnames))
-                    if len(nonexist_colnames)>0:
-                        for col in nonexist_colnames:
-                            df[col] = list(itertools.repeat(None,len(df['symbol'])))
-                        df = df[cols]
+            if symbol_dd:
+                result_colnames = set(list(self.result_dict.keys()))
+                symbol_colnames = set(list(symbol_dd.keys()))
+                # get the column names difference between the result and the current ticker
+                nonexist_colnames = list(result_colnames.difference(symbol_colnames))
+                self.result_dict['symbol'] += symbol_dd['symbol']
+                self.result_dict['date'] += symbol_dd['date']
+                cur_len = len(self.result_dict['symbol'])
+                for col in list(symbol_dd.keys()):
+                    if col=='symbol' or col=='date':
+                        continue
+                    elif (len(self.result_dict[col])+len(symbol_dd[col]))!=cur_len:
+                        self.result_dict[col] += list(itertools.repeat(None, (cur_len - len(self.result_dict[col]))))
+                        self.result_dict[col] += symbol_dd[col]
+                    else:   
+                        self.result_dict[col] += symbol_dd[col]
+            # check for columns that doesn't exist for this symbol
+                if len(nonexist_colnames)>0:
+                    # self.logger.debug('Found non-existing columns')
+                    for col in nonexist_colnames:
+                        self.result_dict[col] += list(itertools.repeat(None, (len(self.result_dict['symbol']) - len(self.result_dict[col]))))
+                
+                df = pd.DataFrame(self.result_dict)
+                if self.append_file:
+                    df = df.loc[df['symbol']==symbol]
+                    comp_df = read_csv_file(self.append_file)
+                    cols = comp_df.columns.to_list()
+                    flag = False
                     try:
-                        assert all(df.columns==comp_df.columns)
-                    except AssertionError:
-                        handle_error(self.logger, 'Columns do not match (2). Cancelling append to file. Check code to fix.', exit=True)
-            else: 
-                self.completed_symbols.add(symbol)
-                complete_df = pd.DataFrame({'symbol':list(self.completed_symbols)})
-                complete_df.to_csv(self.done_symbols_outfile, index=False)
-            if self.save_every_symbol:    
-                df.to_csv(f'temp/wsj_financials_{self.statement}.csv', index=False)
-            miss_symbols = pd.DataFrame({'symbol':list(self.missing_symbols)})
-            miss_symbols.to_csv(self.missing_symbols_outfile, index=False)
+                        df=df[cols]
+                        assert df.columns==comp_df.columns
+                    except AssertionError as e:
+                        handle_error(self.logger, 'Columns do not match (1)')
+                        flag=True
+                    if flag:
+                        cur_colnames = set(df.columns.to_list())
+                        data_colnames = set(cols)
+                        # get the column names difference between the result and the current ticker
+                        nonexist_colnames = list(data_colnames.difference(cur_colnames))
+                        if len(nonexist_colnames)>0:
+                            for col in nonexist_colnames:
+                                df[col] = list(itertools.repeat(None,len(df['symbol'])))
+                            df = df[cols]
+                        try:
+                            assert all(df.columns==comp_df.columns)
+                        except AssertionError:
+                            handle_error(self.logger, 'Columns do not match (2). Cancelling append to file. Check code to fix.', exit=True)
+                else: 
+                    self.completed_symbols.add(symbol)
+                    complete_df = pd.DataFrame({'symbol':list(self.completed_symbols)})
+                    complete_df.to_csv(self.done_symbols_outfile, index=False)
+                if self.save_every_symbol:    
+                    df.to_csv(f'temp/wsj_financials_{self.statement}.csv', index=False)
+                miss_symbols = pd.DataFrame({'symbol':list(self.missing_symbols)})
+                miss_symbols.to_csv(self.missing_symbols_outfile, index=False)
+            else:
+                continue
         self.raw_data = df
         self.raw_data['date'] = pd.to_datetime(self.raw_data['date'])
         
@@ -451,7 +458,7 @@ def init_logger(filename='logs/wsj_scraping.log') -> logging.Logger:
     console.setLevel(logging.DEBUG)
     console.setFormatter(logging.Formatter('%(levelname)s: %(message)s'))
     
-    file_handler = logging.FileHandler(filename)
+    file_handler = TimedRotatingFileHandler(filename, when='D', interval=21, backupCount=5, encoding='utf-8')
     file_handler.setLevel(logging.INFO)
     file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
     
@@ -484,7 +491,7 @@ def scrape_wsj(symbols: list, args, logger, supabase_client) -> pd.DataFrame:
         except AttributeError as e:
             handle_error(logger, f'Supabase client not initialized. Error caught: {e}')
         for statement, metrics in statement_metrics.items():
-            scraper = wsj_scraper(
+            scraper = WSJScraper(
                 symbols=symbols, 
                 statement=statement, 
                 quarter=args.quarter, 
@@ -496,13 +503,18 @@ def scrape_wsj(symbols: list, args, logger, supabase_client) -> pd.DataFrame:
             )
             logger.info(f'Scraping {statement}')
             scraper.get_statement_data()
+            logger.info(f'Finished scraping {statement}')
+            if scraper.raw_data.empty:
+                continue
             if result_df.empty:
                 result_df = scraper.raw_data.copy()
             else:
                 result_df = pd.merge(result_df, scraper.raw_data, on=['symbol','date'],how='outer')
-                scraper.raw_data.to_csv(f'temp/wsj_financials_{statement}.csv', index=False) 
-                result_df.to_csv(f'temp/wsj_financials_merged.csv', index=False) 
-                logger.info(f'Finished scraping {statement}')
+            scraper.raw_data.to_csv(f'temp/wsj_financials_{statement}.csv', index=False) 
+            result_df.to_csv(f'temp/wsj_financials_merged.csv', index=False) 
+        if result_df.empty:
+            logger.info('No latest data is available. All data in database are up-to-date.')
+            return result_df
         result_df = result_df.sort_values('symbol')
         result_df['date'] = pd.to_datetime(result_df['date'])
         metrics = set(list(income_metrics.keys())+list(balance_metrics.keys())+list(cashflow_metrics.keys()))
@@ -565,6 +577,8 @@ def main():
     logger.info(f'Found {len(symbols)} symbols in the file')
     result_df = scrape_wsj(symbols, args, logger, supabase_client)
     # logger.info(f'Found {len(new_symbols)} new symbols')
+    if result_df.empty:
+        raise SystemExit(0)
     logger.info('Finished Scraping. Raw data saved')
     logger.info('Start Cleaning')
     wsj_cleaner = WSJCleaner(result_df, supabase_client=supabase_client, logger=logger)
