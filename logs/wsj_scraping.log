@@ -1,0 +1,520 @@
+2023-11-23 19:32:21,948 - INFO - Starting Program
+2023-11-23 19:32:23,271 - INFO - Found 899 symbols in the file
+2023-11-23 19:32:23,851 - INFO - Scraping income-statement
+2023-11-23 19:32:59,289 - WARNING - Data is not available for AEGS.JK
+2023-11-23 19:33:51,095 - WARNING - Data is not available for AMMN.JK
+2023-11-23 19:33:53,133 - WARNING - Data is not available for AMMS.JK
+2023-11-23 19:33:55,637 - WARNING - Data is not available for AMOR.JK
+2023-11-23 19:34:18,661 - WARNING - Data is not available for ARCI.JK
+2023-11-23 19:35:30,499 - WARNING - Data is not available for BABY.JK
+2023-11-23 19:36:43,914 - WARNING - Data is not available for BEBS.JK
+2023-11-23 19:36:58,008 - WARNING - Data is not available for BELL.JK
+2023-11-23 19:37:00,811 - WARNING - Data is not available for BESS.JK
+2023-11-23 19:40:41,484 - WARNING - Data is not available for CHEM.JK
+2023-11-23 19:41:06,183 - WARNING - Data is not available for CMNT.JK
+2023-11-23 19:41:11,213 - WARNING - Data is not available for CMRY.JK
+2023-11-23 19:41:16,697 - WARNING - Data is not available for CNMA.JK
+2023-11-23 19:41:41,395 - WARNING - Data is not available for CRSN.JK
+2023-11-23 19:41:45,128 - WARNING - Data is not available for CSAP.JK
+2023-11-23 19:41:49,063 - WARNING - Data is not available for CSIS.JK
+2023-11-23 19:42:06,803 - WARNING - Data is not available for CYBR.JK
+2023-11-23 19:43:45,332 - WARNING - Data is not available for EDGE.JK
+2023-11-23 19:43:50,094 - WARNING - Data is not available for ELIT.JK
+2023-11-23 19:43:52,020 - WARNING - Data is not available for ELPI.JK
+2023-11-23 19:50:19,270 - INFO - Starting Program
+2023-11-23 19:50:20,935 - INFO - Found 899 symbols in the file
+2023-11-23 19:50:21,655 - INFO - Scraping income-statement
+2023-11-23 19:50:56,453 - WARNING - Data is not available for AEGS.JK
+2023-11-23 19:51:51,703 - WARNING - Data is not available for AMMN.JK
+2023-11-23 19:51:54,137 - WARNING - Data is not available for AMMS.JK
+2023-11-23 19:51:56,597 - WARNING - Data is not available for AMOR.JK
+2023-11-23 19:52:22,897 - WARNING - Data is not available for ARCI.JK
+2023-11-23 19:53:41,328 - WARNING - Data is not available for BABY.JK
+2023-11-23 19:54:56,274 - WARNING - Data is not available for BEBS.JK
+2023-11-23 19:55:09,699 - WARNING - Data is not available for BELL.JK
+2023-11-23 19:55:11,660 - WARNING - Data is not available for BESS.JK
+2023-11-23 20:11:27,125 - INFO - Starting Program
+2023-11-23 20:11:28,458 - INFO - Found 899 symbols in the file
+2023-11-23 20:11:29,122 - INFO - Scraping income-statement
+2023-11-23 20:12:08,081 - WARNING - Data is not available for AEGS.JK
+2023-11-23 20:13:18,946 - INFO - Starting Program
+2023-11-23 20:13:20,153 - INFO - Found 899 symbols in the file
+2023-11-23 20:13:20,806 - INFO - Scraping income-statement
+2023-11-23 20:13:36,918 - INFO - Found new symbol that was not in the database. ACST.JK
+2023-11-23 20:13:55,456 - WARNING - Data is not available for AEGS.JK
+2023-11-23 20:14:42,498 - WARNING - Data is not available for AMMN.JK
+2023-11-23 20:14:44,996 - WARNING - Data is not available for AMMS.JK
+2023-11-23 20:14:47,480 - WARNING - Data is not available for AMOR.JK
+2023-11-23 20:15:10,258 - WARNING - Data is not available for ARCI.JK
+2023-11-23 20:15:40,455 - INFO - Found new symbol that was not in the database. ASHA.JK
+2023-11-23 20:16:11,422 - INFO - Found new symbol that was not in the database. AWAN.JK
+2023-11-23 20:16:13,276 - INFO - Found new symbol that was not in the database. AXIO.JK
+2023-11-23 20:16:21,533 - WARNING - Data is not available for BABY.JK
+2023-11-23 20:16:37,531 - WARNING - Data is not available for BAPA.JK
+2023-11-23 20:17:26,831 - INFO - Found new symbol that was not in the database. BDKR.JK
+2023-11-23 20:17:32,040 - WARNING - Data is not available for BEBS.JK
+2023-11-23 20:17:44,765 - WARNING - Data is not available for BELL.JK
+2023-11-23 20:17:47,962 - WARNING - Data is not available for BESS.JK
+2023-11-23 20:19:34,902 - INFO - Found new symbol that was not in the database. BREN.JK
+2023-11-23 20:21:17,585 - WARNING - Data is not available for CHEM.JK
+2023-11-23 20:21:38,123 - WARNING - Data is not available for CMNT.JK
+2023-11-23 20:21:43,567 - WARNING - Data is not available for CMRY.JK
+2023-11-23 20:21:48,239 - WARNING - Data is not available for CNMA.JK
+2023-11-23 20:22:06,619 - INFO - Found new symbol that was not in the database. CRAB.JK
+2023-11-23 20:22:09,102 - WARNING - Data is not available for CRSN.JK
+2023-11-23 20:22:29,287 - INFO - Found new symbol that was not in the database. CUAN.JK
+2023-11-23 20:22:31,135 - WARNING - Data is not available for CYBR.JK
+2023-11-23 20:22:54,398 - INFO - Found new symbol that was not in the database. DEWI.JK
+2023-11-23 20:23:30,857 - INFO - Found new symbol that was not in the database. DOOH.JK
+2023-11-23 20:23:47,071 - INFO - Found new symbol that was not in the database. DUCK.JK
+2023-11-23 20:24:03,040 - WARNING - Data is not available for EDGE.JK
+2023-11-23 20:24:06,937 - WARNING - Data is not available for ELIT.JK
+2023-11-23 20:24:08,784 - WARNING - Data is not available for ELPI.JK
+2023-11-23 20:31:17,517 - WARNING - Page does not exist for FINN.JK.
+2023-11-23 20:31:27,124 - INFO - Found new symbol that was not in the database. FLMC.JK
+2023-11-23 20:31:31,600 - WARNING - Data is not available for FOLK.JK
+2023-11-23 20:32:35,618 - WARNING - Data is not available for GOTO.JK
+2023-11-23 20:32:42,016 - WARNING - Data is not available for GRIA.JK
+2023-11-23 20:32:44,004 - WARNING - Data is not available for GRPM.JK
+2023-11-23 20:32:51,426 - WARNING - Data is not available for GTRA.JK
+2023-11-23 20:32:56,804 - WARNING - Data is not available for GULA.JK
+2023-11-23 20:33:09,003 - INFO - Found new symbol that was not in the database. HAJJ.JK
+2023-11-23 20:33:13,374 - INFO - Found new symbol that was not in the database. HATM.JK
+2023-11-23 20:33:16,033 - WARNING - Data is not available for HBAT.JK
+2023-11-23 20:34:04,820 - WARNING - Data is not available for HUMI.JK
+2023-11-23 20:35:18,817 - WARNING - Data is not available for INET.JK
+2023-11-23 20:35:42,681 - WARNING - Data is not available for IOTF.JK
+2023-11-23 20:36:05,049 - WARNING - Data is not available for ISAP.JK
+2023-11-23 20:36:26,494 - INFO - Found new symbol that was not in the database. JATI.JK
+2023-11-23 20:37:24,696 - WARNING - Data is not available for KDTN.JK
+2023-11-23 20:37:31,769 - WARNING - Data is not available for KETR.JK
+2023-11-23 20:37:52,446 - WARNING - Data is not available for KKES.JK
+2023-11-23 20:37:56,271 - INFO - Found new symbol that was not in the database. KLAS.JK
+2023-11-23 20:38:00,725 - WARNING - Data is not available for KLIN.JK
+2023-11-23 20:38:09,846 - WARNING - Data is not available for KOCI.JK
+2023-11-23 20:38:15,044 - WARNING - Data is not available for KOKA.JK
+2023-11-23 20:38:39,823 - WARNING - Data is not available for KRYA.JK
+2023-11-23 20:38:44,697 - WARNING - Data is not available for LABA.JK
+2023-11-23 20:39:15,319 - WARNING - Data is not available for LMAX.JK
+2023-11-23 20:39:22,761 - WARNING - Data is not available for LOPI.JK
+2023-11-23 20:39:59,232 - INFO - Found new symbol that was not in the database. MAHA.JK
+2023-11-23 20:40:20,490 - WARNING - Data is not available for MASB.JK
+2023-11-23 20:40:23,092 - WARNING - Data is not available for MAXI.JK
+2023-11-23 20:40:30,923 - INFO - Found new symbol that was not in the database. MBMA.JK
+2023-11-23 20:41:06,231 - WARNING - Data is not available for MENN.JK
+2023-11-23 20:42:00,841 - INFO - Found new symbol that was not in the database. MMIX.JK
+2023-11-23 20:42:24,021 - WARNING - Data is not available for MPXL.JK
+2023-11-23 20:42:30,531 - WARNING - Data is not available for MSIE.JK
+2023-11-23 20:42:49,007 - INFO - Found new symbol that was not in the database. MTMH.JK
+2023-11-23 20:43:01,394 - WARNING - Data is not available for MUTU.JK
+2023-11-23 20:43:14,507 - WARNING - Data is not available for NANO.JK
+2023-11-23 20:43:26,103 - WARNING - Data is not available for NCKL.JK
+2023-11-23 20:43:43,114 - WARNING - Data is not available for NINE.JK
+2023-11-23 20:44:24,702 - WARNING - Data is not available for OLIV.JK
+2023-11-23 20:44:37,583 - WARNING - Data is not available for PADA.JK
+2023-11-23 20:45:09,075 - INFO - Found new symbol that was not in the database. PDPP.JK
+2023-11-23 20:45:35,517 - WARNING - Data is not available for PIPA.JK
+2023-11-23 20:45:52,584 - WARNING - Data is not available for PMMP.JK
+2023-11-23 20:46:38,324 - WARNING - Data is not available for PPRI.JK
+2023-11-23 20:46:45,892 - INFO - Found new symbol that was not in the database. PRAY.JK
+2023-11-23 20:47:13,497 - WARNING - Data is not available for PTMP.JK
+2023-11-23 20:47:19,453 - WARNING - Data is not available for PTPS.JK
+2023-11-23 20:47:51,147 - INFO - Found new symbol that was not in the database. RAAM.JK
+2023-11-23 20:47:53,166 - WARNING - Data is not available for RAFI.JK
+2023-11-23 20:48:08,127 - WARNING - Data is not available for RCCC.JK
+2023-11-23 20:48:49,288 - WARNING - Data is not available for RSCH.JK
+2023-11-23 20:48:56,956 - INFO - Found new symbol that was not in the database. RUNS.JK
+2023-11-23 20:49:52,749 - WARNING - Data is not available for SICO.JK
+2023-11-23 20:50:41,574 - WARNING - Data is not available for SMIL.JK
+2023-11-23 20:50:58,379 - WARNING - Data is not available for SMRU.JK
+2023-11-23 20:51:54,141 - WARNING - Data is not available for STRK.JK
+2023-11-23 20:52:33,399 - WARNING - Data is not available for TAYS.JK
+2023-11-23 20:53:09,643 - WARNING - Data is not available for TGUK.JK
+2023-11-23 20:53:24,949 - WARNING - Data is not available for TLDN.JK
+2023-11-23 20:53:36,920 - INFO - Found new symbol that was not in the database. TOBA.JK
+2023-11-23 20:53:39,509 - WARNING - Data is not available for TOOL.JK
+2023-11-23 20:53:53,361 - WARNING - Data is not available for TOYS.JK
+2023-11-23 20:54:03,033 - INFO - Found new symbol that was not in the database. TRGU.JK
+2023-11-23 20:54:50,661 - WARNING - Page does not exist for TURI.JK.
+2023-11-23 20:54:53,957 - INFO - Found new symbol that was not in the database. TYRE.JK
+2023-11-23 20:55:01,314 - WARNING - Data is not available for UFOE.JK
+2023-11-23 20:55:09,002 - WARNING - Data is not available for UNIQ.JK
+2023-11-23 20:55:24,042 - INFO - Found new symbol that was not in the database. UVCR.JK
+2023-11-23 20:55:40,915 - WARNING - Data is not available for VKTR.JK
+2023-11-23 20:56:04,297 - WARNING - Data is not available for WIDI.JK
+2023-11-23 20:56:16,756 - WARNING - Data is not available for WINR.JK
+2023-11-23 20:56:52,063 - INFO - Found new symbol that was not in the database. ZATA.JK
+2023-11-23 20:57:03,202 - INFO - Finished scraping income-statement
+2023-11-23 20:57:03,236 - INFO - Scraping balance-sheet
+2023-11-23 20:57:19,556 - INFO - Found new symbol that was not in the database. ACST.JK
+2023-11-23 20:57:40,745 - WARNING - Data is not available for AEGS.JK
+2023-11-23 20:58:35,971 - WARNING - Data is not available for AMMN.JK
+2023-11-23 20:58:38,395 - WARNING - Data is not available for AMMS.JK
+2023-11-23 20:58:41,261 - WARNING - Data is not available for AMOR.JK
+2023-11-23 20:59:06,389 - WARNING - Data is not available for ARCI.JK
+2023-11-23 20:59:38,881 - INFO - Found new symbol that was not in the database. ASHA.JK
+2023-11-23 21:00:11,052 - INFO - Found new symbol that was not in the database. AWAN.JK
+2023-11-23 21:00:13,548 - INFO - Found new symbol that was not in the database. AXIO.JK
+2023-11-23 21:00:21,353 - WARNING - Data is not available for BABY.JK
+2023-11-23 21:01:26,394 - INFO - Found new symbol that was not in the database. BDKR.JK
+2023-11-23 21:01:31,977 - WARNING - Data is not available for BEBS.JK
+2023-11-23 21:01:44,832 - WARNING - Data is not available for BELL.JK
+2023-11-23 21:01:47,048 - WARNING - Data is not available for BESS.JK
+2023-11-23 21:03:37,060 - INFO - Found new symbol that was not in the database. BREN.JK
+2023-11-23 21:05:20,949 - WARNING - Data is not available for CHEM.JK
+2023-11-23 21:05:44,758 - WARNING - Data is not available for CMNT.JK
+2023-11-23 21:05:50,074 - WARNING - Data is not available for CMRY.JK
+2023-11-23 21:05:54,480 - WARNING - Data is not available for CNMA.JK
+2023-11-23 21:06:13,293 - INFO - Found new symbol that was not in the database. CRAB.JK
+2023-11-23 21:06:15,913 - WARNING - Data is not available for CRSN.JK
+2023-11-23 21:06:37,274 - INFO - Found new symbol that was not in the database. CUAN.JK
+2023-11-23 21:06:38,863 - WARNING - Data is not available for CYBR.JK
+2023-11-23 21:07:00,840 - INFO - Found new symbol that was not in the database. DEWI.JK
+2023-11-23 21:19:12,215 - WARNING - Page does not exist for DMAS.JK.
+2023-11-23 21:19:29,442 - INFO - Found new symbol that was not in the database. DOOH.JK
+2023-11-23 21:19:48,505 - INFO - Found new symbol that was not in the database. DUCK.JK
+2023-11-23 21:20:07,282 - WARNING - Data is not available for EDGE.JK
+2023-11-23 21:20:12,980 - WARNING - Data is not available for ELIT.JK
+2023-11-23 21:20:15,563 - WARNING - Data is not available for ELPI.JK
+2023-11-23 21:21:50,745 - INFO - Starting Program
+2023-11-23 21:21:51,910 - INFO - Found 899 symbols in the file
+2023-11-23 21:21:52,520 - INFO - Scraping income-statement
+2023-11-23 21:22:05,206 - INFO - Found new symbol that was not in the database. ACST.JK
+2023-11-23 21:22:24,168 - WARNING - Data is not available for AEGS.JK
+2023-11-23 21:23:11,422 - WARNING - Data is not available for AMMN.JK
+2023-11-23 21:23:13,321 - WARNING - Data is not available for AMMS.JK
+2023-11-23 21:23:15,668 - WARNING - Data is not available for AMOR.JK
+2023-11-23 21:23:39,219 - WARNING - Data is not available for ARCI.JK
+2023-11-23 21:24:09,200 - INFO - Found new symbol that was not in the database. ASHA.JK
+2023-11-23 21:24:37,204 - INFO - Found new symbol that was not in the database. AWAN.JK
+2023-11-23 21:24:39,862 - INFO - Found new symbol that was not in the database. AXIO.JK
+2023-11-23 21:24:46,823 - WARNING - Data is not available for BABY.JK
+2023-11-23 21:25:45,656 - INFO - Found new symbol that was not in the database. BDKR.JK
+2023-11-23 21:25:50,603 - WARNING - Data is not available for BEBS.JK
+2023-11-23 21:26:02,032 - WARNING - Data is not available for BELL.JK
+2023-11-23 21:26:04,474 - WARNING - Data is not available for BESS.JK
+2023-11-23 21:27:43,226 - INFO - Found new symbol that was not in the database. BREN.JK
+2023-11-23 21:29:26,198 - WARNING - Data is not available for CHEM.JK
+2023-11-23 21:29:46,940 - WARNING - Data is not available for CMNT.JK
+2023-11-23 21:29:51,645 - WARNING - Data is not available for CMRY.JK
+2023-11-23 21:29:55,765 - WARNING - Data is not available for CNMA.JK
+2023-11-23 21:30:15,895 - INFO - Found new symbol that was not in the database. CRAB.JK
+2023-11-23 21:30:18,576 - WARNING - Data is not available for CRSN.JK
+2023-11-23 21:30:20,681 - WARNING - Data is not available for CSAP.JK
+2023-11-23 21:30:36,739 - INFO - Found new symbol that was not in the database. CUAN.JK
+2023-11-23 21:30:39,187 - WARNING - Data is not available for CYBR.JK
+2023-11-23 21:30:58,993 - INFO - Found new symbol that was not in the database. DEWI.JK
+2023-11-23 21:31:34,047 - INFO - Found new symbol that was not in the database. DOOH.JK
+2023-11-23 21:31:49,826 - INFO - Found new symbol that was not in the database. DUCK.JK
+2023-11-23 21:32:06,979 - WARNING - Data is not available for EDGE.JK
+2023-11-23 21:32:11,697 - WARNING - Data is not available for ELIT.JK
+2023-11-23 21:32:14,157 - WARNING - Data is not available for ELPI.JK
+2023-11-23 21:33:16,636 - WARNING - Page does not exist for FINN.JK.
+2023-11-23 21:33:25,918 - INFO - Found new symbol that was not in the database. FLMC.JK
+2023-11-23 21:33:30,740 - WARNING - Data is not available for FOLK.JK
+2023-11-23 21:34:36,304 - WARNING - Data is not available for GOTO.JK
+2023-11-23 21:34:43,459 - WARNING - Data is not available for GRIA.JK
+2023-11-23 21:34:46,074 - WARNING - Data is not available for GRPM.JK
+2023-11-23 21:34:53,464 - WARNING - Data is not available for GTRA.JK
+2023-11-23 21:34:58,367 - WARNING - Data is not available for GULA.JK
+2023-11-23 21:35:11,161 - INFO - Found new symbol that was not in the database. HAJJ.JK
+2023-11-23 21:35:16,285 - INFO - Found new symbol that was not in the database. HATM.JK
+2023-11-23 21:35:18,449 - WARNING - Data is not available for HBAT.JK
+2023-11-23 21:36:05,484 - WARNING - Data is not available for HUMI.JK
+2023-11-23 21:37:21,079 - WARNING - Data is not available for INET.JK
+2023-11-23 21:37:45,029 - WARNING - Data is not available for IOTF.JK
+2023-11-23 21:38:05,311 - WARNING - Data is not available for ISAP.JK
+2023-11-23 21:38:24,981 - INFO - Found new symbol that was not in the database. JATI.JK
+2023-11-23 21:39:27,593 - WARNING - Data is not available for KDTN.JK
+2023-11-23 21:39:34,752 - WARNING - Data is not available for KETR.JK
+2023-11-23 21:39:54,363 - WARNING - Data is not available for KKES.JK
+2023-11-23 21:39:58,957 - INFO - Found new symbol that was not in the database. KLAS.JK
+2023-11-23 21:40:02,972 - WARNING - Data is not available for KLIN.JK
+2023-11-23 21:40:13,336 - WARNING - Data is not available for KOCI.JK
+2023-11-23 21:40:19,028 - WARNING - Data is not available for KOKA.JK
+2023-11-23 21:40:46,845 - WARNING - Data is not available for KRYA.JK
+2023-11-23 21:40:52,780 - WARNING - Data is not available for LABA.JK
+2023-11-23 21:41:21,286 - WARNING - Data is not available for LMAX.JK
+2023-11-23 21:41:28,979 - WARNING - Data is not available for LOPI.JK
+2023-11-23 21:42:10,141 - INFO - Found new symbol that was not in the database. MAHA.JK
+2023-11-23 21:42:31,725 - WARNING - Data is not available for MASB.JK
+2023-11-23 21:42:34,300 - WARNING - Data is not available for MAXI.JK
+2023-11-23 21:42:42,550 - INFO - Found new symbol that was not in the database. MBMA.JK
+2023-11-23 21:43:19,486 - WARNING - Data is not available for MENN.JK
+2023-11-23 21:44:10,727 - INFO - Found new symbol that was not in the database. MMIX.JK
+2023-11-23 21:44:34,801 - WARNING - Data is not available for MPXL.JK
+2023-11-23 21:44:41,264 - WARNING - Data is not available for MSIE.JK
+2023-11-23 21:44:57,736 - INFO - Found new symbol that was not in the database. MTMH.JK
+2023-11-23 21:45:11,262 - WARNING - Data is not available for MUTU.JK
+2023-11-23 21:45:19,419 - WARNING - Data is not available for MYRX.JK
+2023-11-23 21:45:24,789 - WARNING - Data is not available for NANO.JK
+2023-11-23 21:45:35,048 - WARNING - Data is not available for NCKL.JK
+2023-11-23 21:45:52,370 - WARNING - Data is not available for NINE.JK
+2023-11-23 21:46:31,719 - WARNING - Data is not available for OLIV.JK
+2023-11-23 21:46:42,790 - WARNING - Data is not available for PADA.JK
+2023-11-23 21:47:11,355 - INFO - Found new symbol that was not in the database. PDPP.JK
+2023-11-23 21:47:34,514 - WARNING - Data is not available for PIPA.JK
+2023-11-23 21:47:50,471 - WARNING - Data is not available for PMMP.JK
+2023-11-23 21:48:13,555 - WARNING - Data is not available for POLA.JK
+2023-11-23 21:48:20,741 - WARNING - Page does not exist for POLL.JK.
+2023-11-23 21:48:42,342 - WARNING - Data is not available for PPRI.JK
+2023-11-23 21:48:49,465 - INFO - Found new symbol that was not in the database. PRAY.JK
+2023-11-23 21:49:15,714 - WARNING - Data is not available for PTMP.JK
+2023-11-23 21:49:21,417 - WARNING - Data is not available for PTPS.JK
+2023-11-23 21:49:53,052 - INFO - Found new symbol that was not in the database. RAAM.JK
+2023-11-23 21:49:55,145 - WARNING - Data is not available for RAFI.JK
+2023-11-23 21:50:08,116 - WARNING - Data is not available for RCCC.JK
+2023-11-23 21:50:49,108 - WARNING - Data is not available for RSCH.JK
+2023-11-23 21:50:57,847 - INFO - Found new symbol that was not in the database. RUNS.JK
+2023-11-23 21:51:54,741 - WARNING - Data is not available for SICO.JK
+2023-11-23 21:52:40,702 - INFO - Found new symbol that was not in the database. SMIL.JK
+2023-11-23 21:53:47,067 - WARNING - Data is not available for STRK.JK
+2023-11-23 21:54:25,173 - WARNING - Data is not available for TAYS.JK
+2023-11-23 21:55:02,498 - WARNING - Data is not available for TGUK.JK
+2023-11-23 21:55:14,639 - WARNING - Data is not available for TLDN.JK
+2023-11-23 21:55:26,051 - INFO - Found new symbol that was not in the database. TOBA.JK
+2023-11-23 21:55:28,418 - WARNING - Data is not available for TOOL.JK
+2023-11-23 21:55:40,652 - WARNING - Data is not available for TOYS.JK
+2023-11-23 21:55:50,085 - INFO - Found new symbol that was not in the database. TRGU.JK
+2023-11-23 21:56:25,426 - WARNING - Page does not exist for TURI.JK.
+2023-11-23 21:56:27,958 - INFO - Found new symbol that was not in the database. TYRE.JK
+2023-11-23 21:56:34,140 - WARNING - Data is not available for UFOE.JK
+2023-11-23 21:56:40,976 - WARNING - Data is not available for UNIQ.JK
+2023-11-23 21:56:55,811 - INFO - Found new symbol that was not in the database. UVCR.JK
+2023-11-23 21:57:10,594 - WARNING - Data is not available for VKTR.JK
+2023-11-23 21:57:33,511 - WARNING - Data is not available for WIDI.JK
+2023-11-23 21:57:46,751 - WARNING - Data is not available for WINR.JK
+2023-11-23 21:58:23,563 - INFO - Found new symbol that was not in the database. ZATA.JK
+2023-11-23 21:58:33,135 - INFO - Finished scraping income-statement
+2023-11-23 21:58:33,165 - INFO - Scraping balance-sheet
+2023-11-23 21:58:46,473 - INFO - Found new symbol that was not in the database. ACST.JK
+2023-11-23 21:59:04,372 - WARNING - Data is not available for AEGS.JK
+2023-11-23 21:59:54,235 - WARNING - Data is not available for AMMN.JK
+2023-11-23 21:59:56,125 - WARNING - Data is not available for AMMS.JK
+2023-11-23 21:59:57,874 - WARNING - Data is not available for AMOR.JK
+2023-11-23 22:00:19,490 - WARNING - Data is not available for ARCI.JK
+2023-11-23 22:00:52,128 - INFO - Found new symbol that was not in the database. ASHA.JK
+2023-11-23 22:01:23,796 - INFO - Found new symbol that was not in the database. AWAN.JK
+2023-11-23 22:01:26,754 - INFO - Found new symbol that was not in the database. AXIO.JK
+2023-11-23 22:01:34,059 - WARNING - Data is not available for BABY.JK
+2023-11-23 22:02:35,284 - INFO - Found new symbol that was not in the database. BDKR.JK
+2023-11-23 22:02:39,418 - WARNING - Data is not available for BEBS.JK
+2023-11-23 22:02:51,011 - WARNING - Data is not available for BELL.JK
+2023-11-23 22:02:53,382 - WARNING - Data is not available for BESS.JK
+2023-11-23 22:04:35,692 - INFO - Found new symbol that was not in the database. BREN.JK
+2023-11-23 22:06:20,290 - WARNING - Data is not available for CHEM.JK
+2023-11-23 22:06:43,673 - WARNING - Data is not available for CMNT.JK
+2023-11-23 22:06:48,245 - WARNING - Data is not available for CMRY.JK
+2023-11-23 22:06:53,254 - WARNING - Data is not available for CNMA.JK
+2023-11-23 22:07:12,640 - INFO - Found new symbol that was not in the database. CRAB.JK
+2023-11-23 22:07:14,598 - WARNING - Data is not available for CRSN.JK
+2023-11-23 22:07:33,883 - INFO - Found new symbol that was not in the database. CUAN.JK
+2023-11-23 22:07:35,978 - WARNING - Data is not available for CYBR.JK
+2023-11-23 22:07:59,092 - INFO - Found new symbol that was not in the database. DEWI.JK
+2023-11-23 22:08:34,981 - INFO - Found new symbol that was not in the database. DOOH.JK
+2023-11-23 22:08:50,744 - INFO - Found new symbol that was not in the database. DUCK.JK
+2023-11-23 22:09:07,766 - WARNING - Data is not available for EDGE.JK
+2023-11-23 22:09:13,190 - WARNING - Data is not available for ELIT.JK
+2023-11-23 22:09:15,567 - WARNING - Data is not available for ELPI.JK
+2023-11-23 22:09:46,427 - WARNING - Cannot find table2 for ERAL.JK table1 canceled, error: 'NoneType' object has no attribute 'find'
+2023-11-23 22:10:06,797 - WARNING - Cannot find table2 for EURO.JK table1 canceled, error: 'NoneType' object has no attribute 'find'
+2023-11-23 22:10:30,687 - WARNING - Page does not exist for FINN.JK.
+2023-11-23 22:10:42,910 - INFO - Found new symbol that was not in the database. FLMC.JK
+2023-11-23 22:10:50,510 - WARNING - Data is not available for FOLK.JK
+2023-11-23 22:11:59,066 - WARNING - Data is not available for GOTO.JK
+2023-11-23 22:12:05,529 - WARNING - Data is not available for GRIA.JK
+2023-11-23 22:12:07,891 - WARNING - Data is not available for GRPM.JK
+2023-11-23 22:12:14,746 - WARNING - Data is not available for GTRA.JK
+2023-11-23 22:12:20,439 - WARNING - Data is not available for GULA.JK
+2023-11-23 22:12:32,081 - INFO - Found new symbol that was not in the database. HAJJ.JK
+2023-11-23 22:12:37,259 - INFO - Found new symbol that was not in the database. HATM.JK
+2023-11-23 22:12:38,806 - WARNING - Data is not available for HBAT.JK
+2023-11-23 22:13:36,333 - WARNING - Data is not available for HUMI.JK
+2023-11-23 22:15:03,574 - WARNING - Data is not available for INET.JK
+2023-11-23 22:15:29,435 - WARNING - Data is not available for IOTF.JK
+2023-11-23 22:15:52,764 - WARNING - Data is not available for ISAP.JK
+2023-11-23 22:16:14,589 - INFO - Found new symbol that was not in the database. JATI.JK
+2023-11-23 22:17:18,521 - WARNING - Data is not available for KDTN.JK
+2023-11-23 22:17:26,317 - WARNING - Data is not available for KETR.JK
+2023-11-23 22:17:35,132 - WARNING - Cannot find table2 for KING.JK table1 canceled, error: 'NoneType' object has no attribute 'find'
+2023-11-23 22:17:45,808 - WARNING - Data is not available for KKES.JK
+2023-11-23 22:17:50,491 - INFO - Found new symbol that was not in the database. KLAS.JK
+2023-11-23 22:17:55,664 - WARNING - Data is not available for KLIN.JK
+2023-11-23 22:18:05,087 - WARNING - Data is not available for KOCI.JK
+2023-11-23 22:18:10,615 - WARNING - Data is not available for KOKA.JK
+2023-11-23 22:18:38,477 - WARNING - Data is not available for KRYA.JK
+2023-11-23 22:18:43,785 - WARNING - Data is not available for LABA.JK
+2023-11-23 22:19:19,385 - WARNING - Data is not available for LMAX.JK
+2023-11-23 22:19:27,192 - WARNING - Data is not available for LOPI.JK
+2023-11-23 22:20:09,910 - INFO - Found new symbol that was not in the database. MAHA.JK
+2023-11-23 22:20:35,807 - WARNING - Data is not available for MASB.JK
+2023-11-23 22:20:37,971 - WARNING - Data is not available for MAXI.JK
+2023-11-23 22:20:46,029 - INFO - Found new symbol that was not in the database. MBMA.JK
+2023-11-23 22:21:26,850 - WARNING - Data is not available for MENN.JK
+2023-11-23 22:22:24,464 - INFO - Found new symbol that was not in the database. MMIX.JK
+2023-11-23 22:22:47,736 - WARNING - Data is not available for MPXL.JK
+2023-11-23 22:22:55,493 - WARNING - Data is not available for MSIE.JK
+2023-11-23 22:23:12,928 - INFO - Found new symbol that was not in the database. MTMH.JK
+2023-11-23 22:23:24,567 - WARNING - Data is not available for MUTU.JK
+2023-11-23 22:23:36,760 - WARNING - Data is not available for NANO.JK
+2023-11-23 22:23:46,100 - WARNING - Cannot find table2 for NAYZ.JK table1 canceled, error: 'NoneType' object has no attribute 'find'
+2023-11-23 22:23:48,059 - WARNING - Data is not available for NCKL.JK
+2023-11-23 22:24:08,126 - WARNING - Data is not available for NINE.JK
+2023-11-23 22:24:50,546 - WARNING - Data is not available for OLIV.JK
+2023-11-23 22:24:59,102 - WARNING - Cannot find table2 for PACK.JK table1 canceled, error: 'NoneType' object has no attribute 'find'
+2023-11-23 22:25:01,074 - WARNING - Data is not available for PADA.JK
+2023-11-23 22:25:34,531 - INFO - Found new symbol that was not in the database. PDPP.JK
+2023-11-23 22:26:04,207 - WARNING - Data is not available for PIPA.JK
+2023-11-23 22:26:25,485 - WARNING - Data is not available for PMMP.JK
+2023-11-23 22:27:13,008 - WARNING - Data is not available for PPRI.JK
+2023-11-23 22:27:20,897 - INFO - Found new symbol that was not in the database. PRAY.JK
+2023-11-23 22:27:49,440 - WARNING - Data is not available for PTMP.JK
+2023-11-23 22:27:54,223 - WARNING - Data is not available for PTPS.JK
+2023-11-23 22:28:24,204 - INFO - Found new symbol that was not in the database. RAAM.JK
+2023-11-23 22:28:26,669 - WARNING - Data is not available for RAFI.JK
+2023-11-23 22:28:38,826 - WARNING - Data is not available for RCCC.JK
+2023-11-23 22:28:47,927 - WARNING - Cannot find table2 for RELF.JK table1 canceled, error: 'NoneType' object has no attribute 'find'
+2023-11-23 22:29:11,119 - WARNING - Cannot find table2 for RMKO.JK table1 canceled, error: 'NoneType' object has no attribute 'find'
+2023-11-23 22:29:24,159 - WARNING - Data is not available for RSCH.JK
+2023-11-23 22:29:32,128 - INFO - Found new symbol that was not in the database. RUNS.JK
+2023-11-23 22:30:30,797 - WARNING - Data is not available for SICO.JK
+2023-11-23 22:31:21,300 - INFO - Found new symbol that was not in the database. SMIL.JK
+2023-11-23 22:32:02,187 - WARNING - Cannot find table2 for SOUL.JK table1 canceled, error: 'NoneType' object has no attribute 'find'
+2023-11-23 22:32:37,641 - WARNING - Data is not available for STRK.JK
+2023-11-23 22:33:16,371 - WARNING - Data is not available for TAYS.JK
+2023-11-23 22:33:58,485 - WARNING - Data is not available for TGUK.JK
+2023-11-23 22:34:15,087 - WARNING - Data is not available for TLDN.JK
+2023-11-23 22:34:27,944 - INFO - Found new symbol that was not in the database. TOBA.JK
+2023-11-23 22:34:30,118 - WARNING - Data is not available for TOOL.JK
+2023-11-23 22:34:42,222 - WARNING - Data is not available for TOYS.JK
+2023-11-23 22:34:51,381 - INFO - Found new symbol that was not in the database. TRGU.JK
+2023-11-23 22:35:26,765 - WARNING - Page does not exist for TURI.JK.
+2023-11-23 22:35:29,433 - INFO - Found new symbol that was not in the database. TYRE.JK
+2023-11-23 22:35:37,032 - WARNING - Data is not available for UFOE.JK
+2023-11-23 22:35:45,940 - WARNING - Data is not available for UNIQ.JK
+2023-11-23 22:36:01,580 - INFO - Found new symbol that was not in the database. UVCR.JK
+2023-11-23 22:36:20,072 - WARNING - Data is not available for VKTR.JK
+2023-11-23 22:36:45,574 - WARNING - Data is not available for WIDI.JK
+2023-11-23 22:37:00,301 - WARNING - Data is not available for WINR.JK
+2023-11-23 22:37:40,558 - INFO - Found new symbol that was not in the database. ZATA.JK
+2023-11-23 22:37:52,011 - INFO - Finished scraping balance-sheet
+2023-11-23 22:37:52,309 - INFO - Scraping cash-flow
+2023-11-23 22:38:09,573 - INFO - Found new symbol that was not in the database. ACST.JK
+2023-11-23 22:38:31,006 - WARNING - Data is not available for AEGS.JK
+2023-11-23 22:39:18,389 - WARNING - Data is not available for AMMN.JK
+2023-11-23 22:39:20,417 - WARNING - Data is not available for AMMS.JK
+2023-11-23 22:39:22,662 - WARNING - Data is not available for AMOR.JK
+2023-11-23 22:39:47,363 - WARNING - Data is not available for ARCI.JK
+2023-11-23 22:40:16,751 - INFO - Found new symbol that was not in the database. ASHA.JK
+2023-11-23 22:40:47,675 - WARNING - Data is not available for AWAN.JK
+2023-11-23 22:40:49,707 - INFO - Found new symbol that was not in the database. AXIO.JK
+2023-11-23 22:40:56,877 - WARNING - Data is not available for BABY.JK
+2023-11-23 22:41:59,864 - INFO - Found new symbol that was not in the database. BDKR.JK
+2023-11-23 22:42:03,560 - WARNING - Data is not available for BEBS.JK
+2023-11-23 22:42:17,163 - WARNING - Data is not available for BELL.JK
+2023-11-23 22:42:20,319 - WARNING - Data is not available for BESS.JK
+2023-11-23 22:44:28,890 - INFO - Found new symbol that was not in the database. BREN.JK
+2023-11-23 22:46:16,680 - WARNING - Data is not available for CHEM.JK
+2023-11-23 22:46:37,884 - WARNING - Data is not available for CMNT.JK
+2023-11-23 22:46:42,450 - WARNING - Data is not available for CMRY.JK
+2023-11-23 22:46:46,923 - WARNING - Data is not available for CNMA.JK
+2023-11-23 22:47:04,662 - INFO - Found new symbol that was not in the database. CRAB.JK
+2023-11-23 22:47:06,995 - WARNING - Data is not available for CRSN.JK
+2023-11-23 22:47:25,555 - INFO - Found new symbol that was not in the database. CUAN.JK
+2023-11-23 22:47:27,515 - WARNING - Data is not available for CYBR.JK
+2023-11-23 22:47:47,815 - INFO - Found new symbol that was not in the database. DEWI.JK
+2023-11-23 22:48:23,072 - WARNING - Data is not available for DOOH.JK
+2023-11-23 22:48:41,842 - INFO - Found new symbol that was not in the database. DUCK.JK
+2023-11-23 22:49:00,185 - WARNING - Data is not available for EDGE.JK
+2023-11-23 22:49:04,666 - WARNING - Data is not available for ELIT.JK
+2023-11-23 22:49:06,998 - WARNING - Data is not available for ELPI.JK
+2023-11-23 22:49:35,127 - WARNING - Data is not available for ERAL.JK
+2023-11-23 22:49:52,269 - WARNING - Data is not available for EURO.JK
+2023-11-23 22:50:08,746 - WARNING - Page does not exist for FINN.JK.
+2023-11-23 22:50:17,196 - WARNING - Data is not available for FLMC.JK
+2023-11-23 22:50:23,292 - WARNING - Data is not available for FOLK.JK
+2023-11-23 22:51:24,682 - WARNING - Data is not available for GOTO.JK
+2023-11-23 22:51:31,861 - WARNING - Data is not available for GRIA.JK
+2023-11-23 22:51:34,351 - WARNING - Data is not available for GRPM.JK
+2023-11-23 22:51:41,962 - WARNING - Data is not available for GTRA.JK
+2023-11-23 22:51:47,058 - WARNING - Data is not available for GULA.JK
+2023-11-23 22:51:59,880 - INFO - Found new symbol that was not in the database. HAJJ.JK
+2023-11-23 22:52:04,978 - INFO - Found new symbol that was not in the database. HATM.JK
+2023-11-23 22:52:06,962 - WARNING - Data is not available for HBAT.JK
+2023-11-23 22:52:55,172 - WARNING - Data is not available for HUMI.JK
+2023-11-23 22:53:01,542 - WARNING - Data is not available for IBOS.JK
+2023-11-23 22:54:05,002 - WARNING - Data is not available for INET.JK
+2023-11-23 22:54:28,490 - WARNING - Data is not available for IOTF.JK
+2023-11-23 22:54:50,141 - WARNING - Data is not available for ISAP.JK
+2023-11-23 22:55:10,217 - WARNING - Data is not available for JATI.JK
+2023-11-23 22:56:09,477 - WARNING - Data is not available for KDTN.JK
+2023-11-23 22:56:17,013 - WARNING - Data is not available for KETR.JK
+2023-11-23 22:56:26,346 - WARNING - Data is not available for KING.JK
+2023-11-23 22:56:35,261 - WARNING - Data is not available for KKES.JK
+2023-11-23 22:56:39,902 - WARNING - Data is not available for KLAS.JK
+2023-11-23 22:56:43,959 - WARNING - Data is not available for KLIN.JK
+2023-11-23 22:56:53,606 - WARNING - Data is not available for KOCI.JK
+2023-11-23 22:56:58,541 - WARNING - Data is not available for KOKA.JK
+2023-11-23 22:57:23,775 - WARNING - Data is not available for KRYA.JK
+2023-11-23 22:57:28,751 - WARNING - Data is not available for LABA.JK
+2023-11-23 22:57:55,996 - WARNING - Data is not available for LMAX.JK
+2023-11-23 22:58:03,588 - WARNING - Data is not available for LOPI.JK
+2023-11-23 22:58:41,335 - INFO - Found new symbol that was not in the database. MAHA.JK
+2023-11-23 22:59:02,831 - WARNING - Data is not available for MASB.JK
+2023-11-23 22:59:04,768 - WARNING - Data is not available for MAXI.JK
+2023-11-23 22:59:11,168 - WARNING - Data is not available for MBMA.JK
+2023-11-23 22:59:43,250 - WARNING - Data is not available for MENN.JK
+2023-11-23 23:00:33,671 - INFO - Found new symbol that was not in the database. MMIX.JK
+2023-11-23 23:00:49,021 - WARNING - Data is not available for MPMX.JK
+2023-11-23 23:01:01,902 - WARNING - Data is not available for MPXL.JK
+2023-11-23 23:01:09,179 - WARNING - Data is not available for MSIE.JK
+2023-11-23 23:01:25,648 - INFO - Found new symbol that was not in the database. MTMH.JK
+2023-11-23 23:01:36,682 - WARNING - Data is not available for MUTU.JK
+2023-11-23 23:01:47,541 - WARNING - Data is not available for NANO.JK
+2023-11-23 23:01:56,409 - WARNING - Data is not available for NAYZ.JK
+2023-11-23 23:01:58,474 - WARNING - Data is not available for NCKL.JK
+2023-11-23 23:02:14,942 - WARNING - Data is not available for NINE.JK
+2023-11-23 23:02:58,659 - WARNING - Data is not available for OLIV.JK
+2023-11-23 23:03:08,365 - WARNING - Data is not available for PACK.JK
+2023-11-23 23:03:11,002 - WARNING - Data is not available for PADA.JK
+2023-11-23 23:03:41,267 - INFO - Found new symbol that was not in the database. PDPP.JK
+2023-11-23 23:04:05,049 - WARNING - Data is not available for PIPA.JK
+2023-11-23 23:04:22,158 - WARNING - Data is not available for PMMP.JK
+2023-11-23 23:05:06,943 - WARNING - Data is not available for PPRI.JK
+2023-11-23 23:05:15,290 - INFO - Found new symbol that was not in the database. PRAY.JK
+2023-11-23 23:05:41,529 - WARNING - Data is not available for PTMP.JK
+2023-11-23 23:05:46,374 - WARNING - Data is not available for PTPS.JK
+2023-11-23 23:06:14,887 - WARNING - Data is not available for RAAM.JK
+2023-11-23 23:06:17,363 - WARNING - Data is not available for RAFI.JK
+2023-11-23 23:06:29,496 - WARNING - Data is not available for RCCC.JK
+2023-11-23 23:06:36,381 - WARNING - Data is not available for RELF.JK
+2023-11-23 23:06:56,421 - WARNING - Data is not available for RMKO.JK
+2023-11-23 23:07:08,678 - WARNING - Data is not available for RSCH.JK
+2023-11-23 23:07:16,646 - WARNING - Data is not available for RUNS.JK
+2023-11-23 23:08:11,090 - WARNING - Data is not available for SICO.JK
+2023-11-23 23:08:54,813 - WARNING - Data is not available for SMIL.JK
+2023-11-23 23:09:32,260 - WARNING - Data is not available for SOUL.JK
+2023-11-23 23:10:03,596 - WARNING - Data is not available for STRK.JK
+2023-11-23 23:10:39,927 - WARNING - Data is not available for TAYS.JK
+2023-11-23 23:11:15,301 - WARNING - Data is not available for TGUK.JK
+2023-11-23 23:11:30,197 - WARNING - Data is not available for TLDN.JK
+2023-11-23 23:11:42,513 - INFO - Found new symbol that was not in the database. TOBA.JK
+2023-11-23 23:11:44,512 - WARNING - Data is not available for TOOL.JK
+2023-11-23 23:11:56,306 - WARNING - Data is not available for TOYS.JK
+2023-11-23 23:12:05,736 - INFO - Found new symbol that was not in the database. TRGU.JK
+2023-11-23 23:12:38,471 - WARNING - Page does not exist for TURI.JK.
+2023-11-23 23:12:40,171 - WARNING - Data is not available for TYRE.JK
+2023-11-23 23:12:47,202 - WARNING - Data is not available for UFOE.JK
+2023-11-23 23:12:54,164 - WARNING - Data is not available for UNIQ.JK
+2023-11-23 23:13:08,609 - WARNING - Data is not available for UVCR.JK
+2023-11-23 23:13:23,337 - WARNING - Data is not available for VKTR.JK
+2023-11-23 23:13:43,499 - WARNING - Data is not available for WIDI.JK
+2023-11-23 23:13:55,872 - WARNING - Data is not available for WINR.JK
+2023-11-23 23:14:28,710 - INFO - Found new symbol that was not in the database. ZATA.JK
+2023-11-23 23:14:39,240 - INFO - Finished scraping cash-flow
+2023-11-23 23:14:39,486 - INFO - Finished Scraping. Raw data saved
+2023-11-23 23:14:39,487 - INFO - Start Cleaning
+2023-11-23 23:15:42,088 - INFO - Finished cleaning
+2023-11-23 23:15:42,089 - INFO - Finished cleaning process
+2023-11-23 23:15:42,090 - INFO - Saving data to CSV
+2023-11-23 23:15:42,091 - INFO - Saving cleaned CSV file to a local directory
