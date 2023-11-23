@@ -263,7 +263,7 @@ class WSJCleaner:
                     ).execute()
                     return True
                 except Exception as e:
-                    self.logger.warning(f'Upserting financial data with Supabase client failed. Retrying ...')
+                    self.logger.warning(f'Upserting financial data with Supabase client failed. Saving to CSV. Error:{e}')
                     self.save_data_to_csv()
                     return False
             else:
@@ -290,7 +290,7 @@ class WSJCleaner:
                     .in_('symbol', symbols)\
                     .execute()
                 except Exception as e:
-                    self.logger.warning('Upserting wsj_format data with Supabase client failed. Saving to CSV file ...')
+                    self.logger.warning(f'Upserting wsj_format data with Supabase client failed. Saving to CSV file. Error:{e}')
                     self.save_profile_to_csv()
                     return -1
             return 1
