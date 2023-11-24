@@ -466,9 +466,10 @@ def init_logger(filename='logs/wsj_scraping.log') -> logging.Logger:
     logger.addHandler(file_handler)
     return logger
 
-def scrape_wsj(symbols: list, args, logger, supabase_client) -> pd.DataFrame:
+def scrape_wsj(symbols: list, args, logger, latest_date_df) -> pd.DataFrame:
     date_now = pd.Timestamp.now(tz='Asia/Jakarta').strftime("%Y%m%d_%H%M%S")
-    outfile=f'data/wsj_financials_{date_now}.csv'
+    period_id = 'q' if args.quarter else 'a'
+    outfile=f'data/wsj_financials_{period_id}_{date_now}.csv'
     if args.page=='statement':   
         result = {
             'symbol':[],
@@ -480,16 +481,6 @@ def scrape_wsj(symbols: list, args, logger, supabase_client) -> pd.DataFrame:
             'cash-flow': cashflow_metrics
         }
         result_df = pd.DataFrame()
-        latest_date_df = None
-        try:
-            table_name = 'idx_financials_quarterly_wsj' if args.quarter else 'idx_financials_annual_wsj'
-            response = (
-                supabase_client.rpc("get_last_date",params={"table_name":table_name}).execute()
-            )
-            latest_date_df = pd.DataFrame(response.data)
-            latest_date_df['last_date'] = pd.to_datetime(latest_date_df['last_date'])
-        except AttributeError as e:
-            handle_error(logger, f'Supabase client not initialized. Error caught: {e}')
         for statement, metrics in statement_metrics.items():
             scraper = WSJScraper(
                 symbols=symbols, 
@@ -571,34 +562,44 @@ def main():
             handle_error(logger, str(e), exit=True)   
     # if not args.outfile.endswith('.csv'):
     #     handle_error(logger, 'Output file specified is not in .csv extension please provide with .csv extension', exit=True)
-    
+    table_name = 'idx_financials_quarterly_wsj' if args.quarter else 'idx_financials_annual_wsj'
+    try:
+        response = (
+            supabase_client.rpc("get_last_date",params={"table_name":table_name}).execute()
+        )
+        latest_date_df = pd.DataFrame(response.data)
+        latest_date_df['last_date'] = pd.to_datetime(latest_date_df['last_date'])
+    except Exception as e:
+        handle_error(logger, f'Last date table could not be retrieved. Error caught: {e}')
+        latest_date_df = None
     symbols = data['symbol'].to_list()
     del data
     logger.info(f'Found {len(symbols)} symbols in the file')
-    result_df = scrape_wsj(symbols, args, logger, supabase_client)
-    # logger.info(f'Found {len(new_symbols)} new symbols')
+    logger.info('Start scraping for quarterly data') if args.quarter else logger.info('Start scraping for annual data')
+    result_df = scrape_wsj(symbols, args, logger, latest_date_df)
     if result_df.empty:
         raise SystemExit(0)
-    logger.info('Finished Scraping. Raw data saved')
-    logger.info('Start Cleaning')
-    wsj_cleaner = WSJCleaner(result_df, supabase_client=supabase_client, logger=logger)
+    logger.info('Finished scraping all statements. Raw data saved')
+    logger.info('Start cleaning')
+    wsj_cleaner = WSJCleaner(result_df, supabase_client=supabase_client, 
+                             quarter=args.quarter, table_name=table_name, logger=logger)
     wsj_cleaner.clean()
     logger.info('Finished cleaning process')
     logger.info('Saving data to CSV')
     wsj_cleaner.save_data_to_csv()
     if args.save_to_db:
         logger.info('Saving data to database')
-        db_success_flag = wsj_cleaner.save_data_to_database()
+        db_success_flag = wsj_cleaner.upsert_data_to_database()
         logger.info('Sucessfully upsert data with Supabase client') if db_success_flag else logger.warning('Failed to upsert data with Supabase client')
-        
-        logger.info('Saving wsj_format for symbols')
-        db_success_flag = wsj_cleaner.save_profile_to_database()
-        if db_success_flag==1:
-            logger.info('Successfully upsert wsj_format for new symbols with Supabase client') 
-        elif db_success_flag==0:
-            logger.info('Nothing to save')
-        else:
-            logger.warning('Failed to upsert data with Supabase client')
+        if len(wsj_cleaner.new_format_symbols)>0:
+            logger.info('Saving wsj_format for symbols')
+            db_success_flag = wsj_cleaner.upsert_profile_to_database()
+            if db_success_flag==1:
+                logger.info('Successfully upsert wsj_format for new symbols with Supabase client') 
+            elif db_success_flag==0:
+                logger.info('Nothing to save')
+            else:
+                logger.warning('Failed to upsert profile data with Supabase client')
     for fname in os.listdir('temp'):
         if 'financials' in fname:
             fpath = os.path.join('temp',fname)
