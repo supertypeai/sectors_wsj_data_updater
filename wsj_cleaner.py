@@ -2,7 +2,6 @@ import pandas as pd
 import numpy as np
 import logging
 import time
-from datetime import datetime as dt
 
 class WSJCleaner: 
     def __init__(self, data, company_profile_csv_path=None, supabase_client=None, quarter=True, table_name=None,
@@ -44,8 +43,7 @@ class WSJCleaner:
         self.profile_data = None
         self.clean_data = None
         self.clean_flag = False
-        self.clashed_symbols = set()
-        self.new_format_symbols = set()
+        self.changed_symbols = set()
         self.changed_flag = False
         self.period_id = 'q' if quarter else 'a'
         self.table_name = table_name
@@ -54,26 +52,12 @@ class WSJCleaner:
     def _create_wsj_format(self, data):
         def test_duplication():
             try:
-                clashed_symbols = self.profile_data.loc[self.profile_data.duplicated('symbol')]
-                assert len(clashed_symbols)<1
-                return True, clashed_symbols.symbol.unique().tolist()
+                changed_symbols = self.profile_data.loc[self.profile_data.duplicated('symbol')]
+                assert len(changed_symbols)<1
+                return True, changed_symbols.symbol.unique().tolist()
             except AssertionError as e:
-                self.logger.error(f'Found symbol(s) with more than 1 wsj_format: {clashed_symbols}')
-                return False, clashed_symbols.symbol.unique().tolist()
-        def test_equality():
-            """
-            Checks wsj_format between database and scraped data excluding new symbols.
-            Returns true if nothing is changed.
-            """
-            df_merge = pd.merge(self.profile_data, self.ticker_info, on='symbol', how='left')
-            # check existing db format with this scraped format
-            df_merge['equal'] = df_merge['wsj_format']==df_merge['wsj_format_db']
-            # store the changed format
-            filter_df = df_merge.loc[df_merge['equal']==False]
-            changed_df = filter_df.loc[filter_df['wsj_format_db'].notna()&(filter_df['wsj_format_db']!=5)]
-            nonequal_df = filter_df.loc[filter_df['wsj_format_db'].isna()|(filter_df['wsj_format_db']==5)]
-            
-            return changed_df.symbol.to_list(), nonequal_df.symbol.to_list()
+                self.logger.error(f'Found symbol(s) with more than 1 wsj_format: {changed_symbols}')
+                return False, changed_symbols.symbol.unique().tolist()
         
         temp_df = data.copy()
         temp_df.loc[temp_df['total_cash_and_due_from_banks'].notna(), ['wsj_format']] = 4
@@ -82,21 +66,12 @@ class WSJCleaner:
         self.profile_data = temp_df[['symbol','wsj_format']].drop_duplicates().copy()
         # check if there is symbol with more than 1 format
         try:
-            unique_flag, clashed_symbols = test_duplication()
+            unique_flag, changed_symbols = test_duplication()
             assert unique_flag==True
         except AssertionError as e:
-            self.logger.warning(f'Found symbol(s) with more than 1 format: {clashed_symbols}')
-            self.clashed_symbols = self.clashed_symbols.union(set(clashed_symbols))
+            self.logger.warning(f'Found symbol(s) with more than 1 format: {changed_symbols}')
+            self.changed_symbols = self.changed_symbols.union(set(changed_symbols))
             self.changed_flag = True
-        # check if there is symbols with changed format (only check for non new symbols)
-        try:
-            changed_format_symbols, new_format_symbols = test_equality()
-            self.new_format_symbols = self.new_format_symbols.union(set(new_format_symbols))
-            assert len(changed_format_symbols)<1
-        except AssertionError as e:
-            self.logger.warning(f'Found symbol(s) with changed format: {changed_format_symbols}')
-            self.changed_flag = True
-            self.clashed_symbols = self.clashed_symbols.union(set(changed_format_symbols))
         
         return temp_df
     
@@ -276,33 +251,6 @@ class WSJCleaner:
             self.logger.info("Cannot upsert data to db, cleaning was unsuccessful. Saving to CSV file ...")
             self.save_data_to_csv()
             return False
-    
-    def upsert_profile_to_database(self):
-        if len(self.new_format_symbols)>0:
-            self.profile_data['wsj_format'] = self.profile_data['wsj_format'].astype(int)
-            records_df = self.profile_data.loc[self.profile_data['symbol'].isin(list(self.new_format_symbols))]
-            for format in records_df.wsj_format.unique().tolist():
-                symbols = records_df.loc[records_df['wsj_format']==format].symbol.unique().tolist()
-                try:
-                    self.supabase_client.table("idx_company_profile")\
-                    .update({'wsj_format': format})\
-                    .in_('symbol', symbols)\
-                    .execute()
-                except Exception as e:
-                    self.logger.warning(f'Upserting wsj_format data with Supabase client failed. Saving to CSV file. Error:{e}')
-                    def save_profile_to_csv(self):
-                        self.profile_data['wsj_format'] = self.profile_data['wsj_format'].astype(int)
-                        self.logger.info("Saving changed wsj_format data to a local directory")
-                        if self.changed_flag:
-                            df = self.profile_data.loc[self.profile_data['symbol'].isin(list(self.clashed_symbols))]
-                            df.to_csv(f"data/wsj_format_data(format_change).csv", index=False)  
-                        else:
-                            df = self.profile_data.loc[self.profile_data['symbol'].isin(list(self.new_format_symbols))]
-                            df.to_csv(f"data/wsj_format_data.csv", index=False) 
-                    save_profile_to_csv()
-                    return -1
-            return 1
-        return 0
     
     def save_data_to_csv(self):
         if self.clean_flag:
