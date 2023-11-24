@@ -93,6 +93,7 @@ cashflow_metrics = {
 }
 
 fiscal_year = {
+    'February-January':'31-Jan-',
     'April-March':'31-Mar-',
     'July-June':'30-Jun-',
     'January-December':'31-Dec-'
