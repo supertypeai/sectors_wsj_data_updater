@@ -5,7 +5,7 @@ import time
 from datetime import datetime as dt
 
 class WSJCleaner: 
-    def __init__(self, data, company_profile_csv_path=None, supabase_client=None, quarter=True,
+    def __init__(self, data, company_profile_csv_path=None, supabase_client=None, quarter=True, table_name=None,
                  logger=logging.getLogger(__name__)) -> None:
         self.logger = logger
         if not company_profile_csv_path and not supabase_client:
@@ -33,9 +33,9 @@ class WSJCleaner:
                 raise SystemExit(1)
         self.columns = [
             'symbol','date','net_operating_cash_flow','total_assets','total_liabilities','total_current_liabilities',
-            'total_equity','total_revenue','net_income','total_debt','stockholders_equity','ebit','ebitda','interest_expense',
+            'total_equity','total_revenue','net_income','total_debt','stockholders_equity','ebit','ebitda',
             'cash_and_short_term_investments','cash_only','total_cash_and_due_from_banks','diluted_eps','diluted_shares_outstanding',
-            'gross_income','pretax_income','income_taxes','total_current_assets','total_non_current_assets','free_cash_flow',
+            'gross_income','pretax_income','income_taxes','total_non_current_assets','free_cash_flow',
             'interest_expense_non_operating','operating_income'
         ]
         self.supabase_client = supabase_client
@@ -47,8 +47,9 @@ class WSJCleaner:
         self.clashed_symbols = set()
         self.new_format_symbols = set()
         self.changed_flag = False
-        self.quarter = quarter
-        self.csv_outfile = f"data/wsj_clean_data_{pd.Timestamp.now(tz='Asia/Jakarta').strftime('%Y%m%d_%H%M%S')}.csv"
+        self.period_id = 'q' if quarter else 'a'
+        self.table_name = table_name
+        self.csv_outfile = f"data/wsj_clean_data_{self.period_id}_{pd.Timestamp.now(tz='Asia/Jakarta').strftime('%Y%m%d_%H%M%S')}.csv"
     
     def _create_wsj_format(self, data):
         def test_duplication():
@@ -243,7 +244,7 @@ class WSJCleaner:
                     retry_count = 0
                     while retry_count < max_retry:
                         try:
-                            self.supabase_client.table("idx_financials_quarterly_wsj").upsert(
+                            self.supabase_client.table(self.table_name).upsert(
                                 records[i:i+batch_size], returning="minimal", on_conflict="symbol, date"
                             ).execute()
                             break
@@ -258,7 +259,7 @@ class WSJCleaner:
             records = convert_df_to_records(temp_df)
             if len(records)<1000:
                 try:
-                    self.supabase_client.table("idx_financials_quarterly_wsj").upsert(
+                    self.supabase_client.table(self.table_name).upsert(
                         records, returning="minimal", on_conflict="symbol, date"
                     ).execute()
                     return True
@@ -291,7 +292,16 @@ class WSJCleaner:
                     .execute()
                 except Exception as e:
                     self.logger.warning(f'Upserting wsj_format data with Supabase client failed. Saving to CSV file. Error:{e}')
-                    self.save_profile_to_csv()
+                    def save_profile_to_csv(self):
+                        self.profile_data['wsj_format'] = self.profile_data['wsj_format'].astype(int)
+                        self.logger.info("Saving changed wsj_format data to a local directory")
+                        if self.changed_flag:
+                            df = self.profile_data.loc[self.profile_data['symbol'].isin(list(self.clashed_symbols))]
+                            df.to_csv(f"data/wsj_format_data(format_change).csv", index=False)  
+                        else:
+                            df = self.profile_data.loc[self.profile_data['symbol'].isin(list(self.new_format_symbols))]
+                            df.to_csv(f"data/wsj_format_data.csv", index=False) 
+                    save_profile_to_csv()
                     return -1
             return 1
         return 0
@@ -304,15 +314,5 @@ class WSJCleaner:
             self.logger.info("Saving partially cleaned CSV file to a local directory")
             self.clean_data.to_csv(f"data/wsj_partialclean_data_{pd.Timestamp.now(tz='Asia/Jakarta').strftime('%Y%m%d_%H%M%S')}.csv", index=False)  
         else:
-            self.logger.warning("Cleaning was unsucessful. No cleaned data was saved")
-            
-    def save_profile_to_csv(self):
-        self.profile_data['wsj_format'] = self.profile_data['wsj_format'].astype(int)
-        self.logger.info("Saving changed wsj_format data to a local directory")
-        if self.changed_flag:
-            df = self.profile_data.loc[self.profile_data['symbol'].isin(list(self.clashed_symbols))]
-            df.to_csv(f"data/wsj_format_data(format_change).csv", index=False)  
-        else:
-            df = self.profile_data.loc[self.profile_data['symbol'].isin(list(self.new_format_symbols))]
-            df.to_csv(f"data/wsj_format_data.csv", index=False)  
+            self.logger.warning("Cleaning was unsucessful. No cleaned data was saved")  
             
