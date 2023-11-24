@@ -123,7 +123,7 @@ class WSJCleaner:
             'selling_general_and_administration_expense', 'other_operating_expenses', 'non_interest_income', 'net_interest_income',
             'gross_income','depreciation_and_amortization_expense','ebitda','total_assets', 'total_current_assets', 'pretax_income',
             'total_current_liabilities','total_liabilities', 'total_revenue','cogs_including_depreciation_amortization',
-            'interest_expense_non_operating'
+            'interest_expense_non_operating','interest_expense_net_of_interest_capitalized'
         ]
         temp_data[fill_hyphen_cols] = temp_data[fill_hyphen_cols].replace('-',None)
         
@@ -233,9 +233,6 @@ class WSJCleaner:
                 for cols in temp_df.columns:
                     if temp_df[cols].dtype == "datetime64[ns]":
                         temp_df[cols] = temp_df[cols].astype(str)
-                temp_df["updated_on"] = pd.Timestamp.now(tz="GMT").strftime(
-                    "%Y-%m-%d %H:%M:%S"
-                )
                 temp_df = temp_df.replace({np.nan: None})
                 records = temp_df.to_dict("records")
                 return records
@@ -255,6 +252,7 @@ class WSJCleaner:
                                 self.save_data_to_csv()
                                 return False, str(e)
                             time.sleep(5)
+                return True, None
             temp_df = self.clean_data.copy()
             records = convert_df_to_records(temp_df)
             if len(records)<1000:
