@@ -509,7 +509,7 @@ def scrape_wsj(symbols: list, args, logger, latest_date_df) -> pd.DataFrame:
             return result_df
         result_df = result_df.sort_values('symbol')
         result_df['date'] = pd.to_datetime(result_df['date'])
-        metrics = set(list(income_metrics.keys())+list(balance_metrics.keys())+list(cashflow_metrics.keys()))
+        metrics = set(list(income_metrics.values())+list(balance_metrics.values())+list(cashflow_metrics.values()))
         columns = set(result_df.columns.to_list())
         non_exist_columns = metrics.difference(columns)
         for col in non_exist_columns:
