@@ -1,5 +1,4 @@
 import pandas as pd
-import numpy as np
 import requests
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
@@ -33,11 +32,8 @@ class WSJFormatChecker():
                 .is_('wsj_format','null').execute()
             )
             self.symbols += pd.DataFrame(response.data).symbol.tolist()
-        self.balance_metric = 'Total Cash & Due from Banks'
-        self.income_metric = 'Operating Income Before Interest Expense'
         self.max_retry = max_retry
         self.profile_data = {'symbol':[], 'wsj_format':[]}
-        self.new_format_symbols = set()
         
     def check_availability(self):
         def try_from_url(url, statement):
@@ -50,62 +46,54 @@ class WSJFormatChecker():
             return None
         for symbol in self.symbols:
             symbolw = symbol.split('.')[0]
-            for statement, metric in zip(['income-statement','balance-sheet'],[self.income_metric, self.balance_metric]):
-                tables = None
-                try:    
-                    i = 0
-                    while i < self.max_retry:
-                        url = f'https://www.wsj.com/market-data/quotes/ID/XIDX/{symbolw}/financials/quarter/{statement}'
-                        tables = try_from_url(url, statement)
-                        if tables:
-                            break
-                        i += 1
-                        self.logger.debug(f'Retrying request to quarter url for {symbol}')
-                        time.sleep(2)
-                    # try from annual page
-                    if i==self.max_retry:
-                        i=0
+            found_flag = False
+            for period in ['annual', 'quarter']:
+                for statement, metric in zip(['balance-sheet','income-statement'],list(wsj_formats.keys())):
+                    if found_flag:
+                        break
+                    tables = None
+                    try:    
+                        i = 0
                         while i < self.max_retry:
-                            url = f'https://www.wsj.com/market-data/quotes/ID/XIDX/{symbolw}/financials/quarter/{statement}'
-                            tables = try_from_url(url, statement)
-                            if tables:
+                            url = f'https://www.wsj.com/market-data/quotes/ID/XIDX/{symbolw}/financials/{period}/{statement}'
+                            if tables:= try_from_url(url, statement):
                                 break
                             i += 1
-                            self.logger.debug(f'Retrying request to annual url for {symbol}')
-                            time.sleep(2)
-                    if tables is None:
-                        handle_error(self.logger, f'Page does not exist for {symbol}')
+                            self.logger.debug(f'Retrying request to quarter url for {symbol}')
+                            time.sleep(1)
+                        if tables is None:
+                            handle_error(self.logger, f'Page does not exist for {symbol}')
+                            continue
+                    except AttributeError as e:
+                        handle_error(self.logger, f'Sourced from error: page does not exist for {symbol}. Error: {e}')
                         continue
-                except AttributeError as e:
-                    handle_error(self.logger, f'Sourced from error: page does not exist for {symbol}. Error: {e}')
-                    continue
-                ### extract data from tables
-                try:
-                    table = tables[0].find('table')
-                    if table:
-                        rows = table.find('tbody').find_all('tr')
-                        found_flag = False   
-                        for row in rows:
-                            col_name = row.find('td').text.strip()
-                            if col_name==metric:
-                                self.logger.info(f'Found wsj_format for {symbol}')
-                                self.profile_data['symbol'].append(symbol)
-                                self.profile_data['wsj_format'].append(wsj_formats.get(metric,5))
-                                found_flag = True
-                                break
-                        if not found_flag:
-                            self.profile_data['symbol'].append(symbol)
-                            self.profile_data['wsj_format'].append(1)
-                except Exception as e:
-                    if isinstance(e, IndexError):
-                        msg = f'Data is not available for {symbol}'
-                    else:
-                        msg = f'Could not identify error: {e}'
-                    handle_error(self.logger, msg)
-                    continue
+                    ### extract data from tables
+                    try:
+                        if table:= tables[0].find('table'):
+                            rows = table.find('tbody').find_all('tr') 
+                            rows = [row.find('td').text.strip() for row in rows if len(row.attrs['class'])<1]
+                            for row in rows:
+                                if row == metric:
+                                    self.logger.info(f'Found wsj_format for {symbol}')
+                                    self.profile_data['symbol'].append(symbol)
+                                    self.profile_data['wsj_format'].append(wsj_formats.get(metric))
+                                    found_flag = True
+                                    break
+                    except Exception as e:
+                        if isinstance(e, IndexError):
+                            msg = f'Data is not available for {symbol}'
+                        else:
+                            msg = f'Could not identify error: {e}'
+                        handle_error(self.logger, msg)
+                        break
+                if not found_flag and tables:
+                    self.logger.info(f'Flag: Found wsj_format for {symbol}')
+                    self.profile_data['symbol'].append(symbol)
+                    self.profile_data['wsj_format'].append(1)
+                    found_flag=True
                 
     def upsert_profile_to_database(self):
-        if len(self.new_format_symbols)>0:
+        if len(self.profile_data['symbol'])>0:
             temp_df = pd.DataFrame(self.profile_data)
             temp_df['wsj_format'] = temp_df['wsj_format'].astype(int)
             for format in temp_df.wsj_format.unique().tolist():
@@ -117,12 +105,8 @@ class WSJFormatChecker():
                     .execute()
                 except Exception as e:
                     self.logger.warning(f'Upserting wsj_format data with Supabase client failed. Saving to CSV file. Error:{e}')
-                    def save_profile_to_csv(self):
-                        temp_df['wsj_format'] = temp_df['wsj_format'].astype(int)
-                        self.logger.info("Saving changed wsj_format data to a local directory")
-                        df = temp_df.loc[temp_df['symbol'].isin(list(self.new_format_symbols))]
-                        df.to_csv(f"data/wsj_format_data.csv", index=False) 
-                    save_profile_to_csv()
+                    self.logger.info("Saving changed wsj_format data to a local directory")
+                    temp_df.to_csv(f"data/wsj_format_data.csv", index=False) 
                     return -1
             return 1
         return 0
@@ -139,7 +123,7 @@ if __name__=='__main__':
     except Exception as e:
         handle_error(logger, f'Failed to initialize Supabase client. Error caught: {e}', exit=True)
         
-    checker = WSJFormatChecker(supabase_client, logger)
+    checker = WSJFormatChecker(supabase_client, logger=logger)
     checker.check_availability()
     checker.upsert_profile_to_database()
             
