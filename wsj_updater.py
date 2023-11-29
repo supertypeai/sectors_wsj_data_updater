@@ -239,13 +239,13 @@ class WSJScraper:
                 eps_true = True if 'eps' in col_name.lower() else False
                 # get the column values for this symbol 
                 symbol_dict[col_name] += [convert_abbr(col_values[i], eps_true) for i in range(data_length)]
-        period = '/quarter' if self.quarter else '/annual'
+        period = 'quarter' if self.quarter else 'annual'
         if self.append_file:
             done_symbols = set(read_csv_file(self.completed_symbols_file)['symbol'].to_list())
             self.symbols = list(set(self.symbols) - done_symbols)
         for symbol in self.symbols:
             symbolw = symbol.split('.')[0]
-            url = f'https://www.wsj.com/market-data/quotes/ID/XIDX/{symbolw}/financials{period}/{self.statement}'
+            url = f'https://www.wsj.com/market-data/quotes/ID/XIDX/{symbolw}/financials/{period}/{self.statement}'
             # print(response.status_code)
             # info = soup.find('th', {'class':'fiscalYr'})
             # try:
@@ -270,7 +270,7 @@ class WSJScraper:
                     self.logger.debug(f'Retrying request to url for {symbol}')
                     time.sleep(5)
             except AttributeError as e:
-                handle_error(self.logger, f'Page does not exist for {symbol}.')
+                handle_error(self.logger, f'Page does not exist for {symbol}')
                 self.missing_symbols.add(symbol)
                 continue
             ### extract data from tables
@@ -384,29 +384,29 @@ class WSJScraper:
         self.raw_data = df
         self.raw_data['date'] = pd.to_datetime(self.raw_data['date'])
         
-@sleep_and_retry               
-@limits(calls=CALLS, period=TIME_PERIOD)       
-def get_company_profile(result_dict, outfile, symbols, logger):
-    for symbol in symbols:
-        symbolw = symbol.split('.')[0]
-        url = f'https://www.wsj.com/market-data/quotes/ID/XIDX/{symbolw}/company-people'
-        response = requests.get(url, allow_redirects=True, headers=headers)
-        soup = BeautifulSoup(response.text, 'html5lib')
+# @sleep_and_retry               
+# @limits(calls=CALLS, period=TIME_PERIOD)       
+# def get_company_profile(result_dict, outfile, symbols, logger):
+#     for symbol in symbols:
+#         symbolw = symbol.split('.')[0]
+#         url = f'https://www.wsj.com/market-data/quotes/ID/XIDX/{symbolw}/company-people'
+#         response = requests.get(url, allow_redirects=True, headers=headers)
+#         soup = BeautifulSoup(response.text, 'html5lib')
         
-        try:
-            profile = soup.find('div', {'class':'cr_overview_data'}).find('ul', {'class':'cr_data_collection'}).find_all('li')[:2]
-            sector = profile[0].find_all('div')[-1].find('span', {'class':'data_data'}).text.strip()
-            industry = profile[1].find_all('div')[-1].find('span', {'class':'data_data'}).text.strip()
-        except AttributeError:
-            handle_error(logger, f'Could not extract {symbolw} profile')
-            sector = ''
-            industry = ''
+#         try:
+#             profile = soup.find('div', {'class':'cr_overview_data'}).find('ul', {'class':'cr_data_collection'}).find_all('li')[:2]
+#             sector = profile[0].find_all('div')[-1].find('span', {'class':'data_data'}).text.strip()
+#             industry = profile[1].find_all('div')[-1].find('span', {'class':'data_data'}).text.strip()
+#         except AttributeError:
+#             handle_error(logger, f'Could not extract {symbolw} profile')
+#             sector = ''
+#             industry = ''
             
-        result_dict['symbol'].append(symbol)
-        result_dict['sector'].append(sector)
-        result_dict['industry'].append(industry)
-        df = pd.DataFrame(result_dict)
-        df.to_csv(outfile, index=False)
+#         result_dict['symbol'].append(symbol)
+#         result_dict['sector'].append(sector)
+#         result_dict['industry'].append(industry)
+#         df = pd.DataFrame(result_dict)
+#         df.to_csv(outfile, index=False)
         
 def create_required_directories():
     for dir in ['logs','temp','data']:
@@ -423,9 +423,6 @@ def init_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("-i", "--infile", nargs="?", default=None,
                         help='The path to a CSV file containing a list of symbols to scrape.')
-    parser.add_argument("-p", "--page", nargs="?",
-                        default='statement', const='statement', choices=['statement','profile'],
-                        help='Specifies whether to scrape financial statements or profile information.')
     parser.add_argument("-db", "--save_to_db", action='store_true', default=False,
                         help='Specifies whether to save the cleaned file to db or not. Defaults to not saving to DB, CSV files are always saved')
     parser.add_argument("-q", "--quarter", action='store_true', default=False,
@@ -471,62 +468,61 @@ def scrape_wsj(symbols: list, args, logger, latest_date_df) -> pd.DataFrame:
     date_now = pd.Timestamp.now(tz='Asia/Jakarta').strftime("%Y%m%d_%H%M%S")
     period_id = 'q' if args.quarter else 'a'
     outfile=f'data/wsj_financials_{period_id}_{date_now}.csv'
-    if args.page=='statement':   
-        result = {
-            'symbol':[],
-            'date':[]
-        }
-        statement_metrics = {
-            'income-statement':income_metrics,
-            'balance-sheet': balance_metrics,
-            'cash-flow': cashflow_metrics
-        }
-        result_df = pd.DataFrame()
-        for statement, metrics in statement_metrics.items():
-            scraper = WSJScraper(
-                symbols=symbols, 
-                statement=statement, 
-                quarter=args.quarter, 
-                target_metrics=metrics, 
-                logger=logger,
-                save_every_symbol=args.save_every_symbol,
-                append_file=args.append,
-                latest_date_df=latest_date_df
-            )
-            logger.info(f'Scraping {statement}')
-            scraper.get_statement_data()
-            logger.info(f'Finished scraping {statement}')
-            if scraper.raw_data.empty:
-                continue
-            if result_df.empty:
-                result_df = scraper.raw_data.copy()
-            else:
-                result_df = pd.merge(result_df, scraper.raw_data, on=['symbol','date'],how='outer')
-            scraper.raw_data.to_csv(f'temp/wsj_financials_{statement}.csv', index=False) 
-            result_df.to_csv(f'temp/wsj_financials_merged.csv', index=False) 
+    result = {
+        'symbol':[],
+        'date':[]
+    }
+    statement_metrics = {
+        'income-statement':income_metrics,
+        'balance-sheet': balance_metrics,
+        'cash-flow': cashflow_metrics
+    }
+    result_df = pd.DataFrame()
+    for statement, metrics in statement_metrics.items():
+        scraper = WSJScraper(
+            symbols=symbols, 
+            statement=statement, 
+            quarter=args.quarter, 
+            target_metrics=metrics, 
+            logger=logger,
+            save_every_symbol=args.save_every_symbol,
+            append_file=args.append,
+            latest_date_df=latest_date_df
+        )
+        logger.info(f'Scraping {statement}')
+        scraper.get_statement_data()
+        logger.info(f'Finished scraping {statement}')
+        if scraper.raw_data.empty:
+            continue
         if result_df.empty:
-            logger.info('No latest data is available. All data in database are up-to-date.')
-            return result_df
-        result_df = result_df.sort_values('symbol')
-        result_df['date'] = pd.to_datetime(result_df['date'])
-        metrics = set(list(income_metrics.values())+list(balance_metrics.values())+list(cashflow_metrics.values()))
-        columns = set(result_df.columns.to_list())
-        non_exist_columns = metrics.difference(columns)
-        for col in non_exist_columns:
-            result_df[col] = None
-        result_df.to_csv(outfile, index=False)
-    elif args.page=='profile':
-        print('Not yet implemented')
-        raise SystemExit(1)
-        result = {
-            'symbol':[],
-            'sector':[],
-            'industry':[]
-        }
-        get_company_profile(result, args.outfile, symbols, logger)
-    else:
-        handle_error(logger, 'Invalid page argument passed. page only accept "statement" or "profile"', exit=True)
-        return
+            result_df = scraper.raw_data.copy()
+        else:
+            result_df = pd.merge(result_df, scraper.raw_data, on=['symbol','date'],how='outer')
+        scraper.raw_data.to_csv(f'temp/wsj_financials_{statement}.csv', index=False) 
+        result_df.to_csv(f'temp/wsj_financials_merged.csv', index=False) 
+    if result_df.empty:
+        logger.info('No latest data is available. All data in database are up-to-date.')
+        return result_df
+    result_df = result_df.sort_values('symbol')
+    result_df['date'] = pd.to_datetime(result_df['date'])
+    metrics = set(list(income_metrics.values())+list(balance_metrics.values())+list(cashflow_metrics.values()))
+    columns = set(result_df.columns.to_list())
+    non_exist_columns = metrics.difference(columns)
+    for col in non_exist_columns:
+        result_df[col] = None
+    result_df.to_csv(outfile, index=False)
+    # elif args.page=='profile':
+    #     print('Not yet implemented')
+    #     raise SystemExit(1)
+    #     result = {
+    #         'symbol':[],
+    #         'sector':[],
+    #         'industry':[]
+    #     }
+    #     get_company_profile(result, args.outfile, symbols, logger)
+    # else:
+    #     handle_error(logger, 'Invalid page argument passed. page only accept "statement" or "profile"', exit=True)
+    #     return
     return result_df
 
 def main():
@@ -551,7 +547,7 @@ def main():
             handle_error(logger, str(e), exit=True)
     else:
         try:
-            response = supabase_client.table("idx_company_profile").select("symbol").execute()
+            response = supabase_client.table("idx_company_profile").select("symbol").eq('current_source',2).execute()
             data = pd.DataFrame(response.data)
         except Exception as e:
             handle_error(logger, f'Could not obtain symbols from Supabase client. Error: {e}', exit=True)
@@ -586,6 +582,8 @@ def main():
                              quarter=args.quarter, table_name=table_name, logger=logger)
     wsj_cleaner.clean()
     logger.info('Finished cleaning process')
+    if wsj_cleaner.changed_flag:
+        logger.warning('Cleaner identified change in wsj_format')
     logger.info('Saving data to CSV')
     wsj_cleaner.save_data_to_csv()
     if args.save_to_db:
