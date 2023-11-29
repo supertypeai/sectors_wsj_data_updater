@@ -3,4 +3,8 @@ pandas==2.1.0
 requests==2.31.0
 bs4==0.0.1
 ratelimit==2.2.1
+pyrate-limiter==2.10.0
+requests==2.31.0
+requests-ratelimiter==0.4.1
+yfinance==0.2.32
 supabase
