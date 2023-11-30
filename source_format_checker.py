@@ -1,19 +1,18 @@
 import pandas as pd
 import requests
-from bs4 import BeautifulSoup
-from dotenv import load_dotenv
 import logging
 import time
 import os
-from wsj_updater import handle_error, init_logger
-from supabase import create_client
 import yfinance as yf
+from supabase import create_client
+from bs4 import BeautifulSoup
+from dotenv import load_dotenv
+from wsj_updater import handle_error, init_logger
 from pyrate_limiter import Duration, Limiter, RequestRate
 from requests import Session
 from requests_ratelimiter import LimiterMixin, MemoryQueueBucket
 
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36'}
-
 
 wsj_formats = {
     'Total Cash & Due from Banks':4,
@@ -59,7 +58,7 @@ class SourceFormatChecker():
         self.max_retry = max_retry
         self.format_data = {'symbol':[], 'wsj_format':[]}
         
-    def scrape_wsj_data(self, symbol, statement, period):
+    def _scrape_wsj_data(self, symbol, statement, period):
         def try_from_url(url, statement):
             response = requests.get(url, allow_redirects=True, headers=headers)
             soup = BeautifulSoup(response.text, 'lxml')
@@ -128,10 +127,9 @@ class SourceFormatChecker():
             else:
                 return True
         def check_symbol_in_wsj(symbol):
-            for period in ['quarter', 'annual']:
-                tables = self.scrape_wsj_data(symbol, 'income-statement', period)
-                if tables:
-                    return True
+            tables = self.scrape_wsj_data(symbol, 'income-statement', 'quarter')
+            if tables:
+                return True
             return False
         if len(self.missing_symbols)>0:
             temp_symbols = list(self.missing_symbols)
@@ -146,17 +144,18 @@ class SourceFormatChecker():
                     
     def save_to_csv(self, df, column, error=None):
         if error:
-            self.logger.warning(f'Upserting {column} data with Supabase client failed. Saving to CSV file. Error:{error}')
+            self.logger.warning(f'Updating {column} data with Supabase client failed. Saving to CSV file. Error:{error}')
             self.logger.info(f"Saving changed {column} data to a local directory")  
         df.to_csv(f"data/{column}_data.csv", index=False) 
         return
                 
-    def upsert_format_to_database(self):
+    def update_format_to_database(self):
         if len(self.format_data['symbol'])>0:
             temp_df = pd.DataFrame(self.format_data)
             temp_df['wsj_format'] = temp_df['wsj_format'].astype(int)
             for format in temp_df.wsj_format.unique().tolist():
                 symbols = temp_df.loc[temp_df['wsj_format']==format].symbol.unique().tolist()
+                self.logger.info("Updating wsj_format with Supabase client")
                 try:
                     self.supabase_client.table("idx_company_profile")\
                     .update({'wsj_format': format})\
@@ -165,7 +164,7 @@ class SourceFormatChecker():
                 except Exception as e:
                     self.save_to_csv(temp_df, 'wsj_format', e)
                     return -1
-            self.logger.info(f'Sucessfully upsert wsj_format data with Supabase client')
+            self.logger.info(f'Sucessfully update wsj_format data with Supabase client')
             ### Check for symbols with wsj_format 3 and 4 and update current_source to 2
             temp_df = temp_df.loc[temp_df['wsj_format']>2]
             if len(temp_df['symbol'])>0:
@@ -183,7 +182,7 @@ class SourceFormatChecker():
             return 1
         return 0   
     
-    def upsert_source_to_database(self):
+    def update_source_to_database(self):
         if len(self.found_data['symbol'])>0:
             temp_df = pd.DataFrame(self.found_data)
             temp_df['current_source'] = temp_df['current_source'].astype(int)
@@ -217,17 +216,17 @@ if __name__=='__main__':
     checker = SourceFormatChecker(supabase_client, logger=logger)
     checker.check_wsj_format() 
     checker.check_null_source()
-    if success_flag := checker.upsert_format_to_database() == 0:
+    if success_flag := checker.update_format_to_database() == 0:
         logger.info('No new format found')
     elif success_flag == 1:
-        logger.info('Finished upserting format to database')
+        logger.info('Finished updating format to database')
     elif success_flag == -1:
-        logger.info('Upserting format to database failed')
+        logger.info('Updating format to database failed')
     
-    if success_flag := checker.upsert_source_to_database() == 0:
+    if success_flag := checker.update_source_to_database() == 0:
         logger.info('No new source found')
     elif success_flag == 1:
-        logger.info('Finished upserting source to database')
+        logger.info('Finished updating source to database')
     elif success_flag == -1:
-        logger.info('Upserting source to database failed')
+        logger.info('Updating source to database failed')
             
