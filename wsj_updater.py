@@ -286,8 +286,8 @@ class WSJScraper:
                     rows = table.find('tbody').find_all('tr')
                     
                     dblatest_true, dblatest_date = check_dbdate_is_latest(symbol, dates[0])
-                    if dblatest_true:
-                        continue           
+                    # if dblatest_true:
+                    #     continue           
                     # make a local dict for 'symbol'
                     dates = list(itertools.takewhile(lambda x: x>dblatest_date, dates)) if dblatest_date else dates
                     symbol_dd = {
@@ -547,7 +547,8 @@ def main():
             handle_error(logger, str(e), exit=True)
     else:
         try:
-            response = supabase_client.table("idx_company_profile").select("symbol").eq('current_source',2).execute()
+            response = supabase_client.table("idx_company_profile").select("symbol").eq('current_source',2)\
+                .eq('wsj_format', 3).execute()
             data = pd.DataFrame(response.data)
         except Exception as e:
             handle_error(logger, f'Could not obtain symbols from Supabase client. Error: {e}', exit=True)
@@ -590,15 +591,6 @@ def main():
         logger.info('Saving data to database')
         db_success_flag = wsj_cleaner.upsert_data_to_database()
         logger.info('Sucessfully upsert data with Supabase client') if db_success_flag else logger.warning('Failed to upsert data with Supabase client')
-        if len(wsj_cleaner.new_format_symbols)>0:
-            logger.info('Saving wsj_format for symbols')
-            db_success_flag = wsj_cleaner.upsert_profile_to_database()
-            if db_success_flag==1:
-                logger.info('Successfully upsert wsj_format for new symbols with Supabase client') 
-            elif db_success_flag==0:
-                logger.info('Nothing to save')
-            else:
-                logger.warning('Failed to upsert profile data with Supabase client')
     for fname in os.listdir('temp'):
         if 'financials' in fname:
             fpath = os.path.join('temp',fname)
