@@ -198,7 +198,7 @@ class WSJCleaner:
             self.logger.error(f'Failed to enrich columns. Error: {e}')
             return
     
-    def upsert_data_to_database(self):
+    def upsert_data_to_database(self, batch_size=10):
         if self.clean_flag and self.supabase_client:
             def convert_df_to_records(data):
                 temp_df = data.copy()
@@ -208,7 +208,7 @@ class WSJCleaner:
                 temp_df = temp_df.replace({np.nan: None})
                 records = temp_df.to_dict("records")
                 return records
-            def batch_upsert(records, batch_size=100, max_retry=3):
+            def batch_upsert(records, max_retry=2):
                 for i in range(0, len(records), batch_size):
                     retry_count = 0
                     while retry_count < max_retry:
@@ -227,23 +227,23 @@ class WSJCleaner:
                 return True, None
             temp_df = self.clean_data.copy()
             records = convert_df_to_records(temp_df)
-            if len(records)<1000:
-                try:
-                    self.supabase_client.table(self.table_name).upsert(
-                        records, returning="minimal", on_conflict="symbol, date"
-                    ).execute()
-                    return True
-                except Exception as e:
-                    self.logger.warning(f'Upserting financial data with Supabase client failed. Saving to CSV. Error:{e}')
-                    self.save_data_to_csv()
-                    return False
+            # if len(records)<1000:
+            #     try:
+            #         self.supabase_client.table(self.table_name).upsert(
+            #             records, returning="minimal", on_conflict="symbol, date"
+            #         ).execute()
+            #         return True
+            #     except Exception as e:
+            #         self.logger.warning(f'Upserting financial data with Supabase client failed. Saving to CSV. Error:{e}')
+            #         self.save_data_to_csv()
+            #         return False
+            # else:
+            db_success_flag, msg = batch_upsert(records)
+            if db_success_flag:
+                return True
             else:
-                db_success_flag, msg = batch_upsert(records)
-                if db_success_flag:
-                    return True
-                else:
-                    self.logger.warning(f'Failed to upsert data to db. Error: {msg}')
-                    return False
+                self.logger.warning(f'Failed to upsert data to db. Error: {msg}')
+                return False
         else:
             self.logger.info("Cannot upsert data to db, cleaning was unsuccessful. Saving to CSV file ...")
             self.save_data_to_csv()

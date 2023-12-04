@@ -468,10 +468,10 @@ def scrape_wsj(symbols: list, args, logger, latest_date_df) -> pd.DataFrame:
     date_now = pd.Timestamp.now(tz='Asia/Jakarta').strftime("%Y%m%d_%H%M%S")
     period_id = 'q' if args.quarter else 'a'
     outfile=f'data/wsj_financials_{period_id}_{date_now}.csv'
-    result = {
-        'symbol':[],
-        'date':[]
-    }
+    # result = {
+    #     'symbol':[],
+    #     'date':[]
+    # }
     statement_metrics = {
         'income-statement':income_metrics,
         'balance-sheet': balance_metrics,
@@ -485,8 +485,6 @@ def scrape_wsj(symbols: list, args, logger, latest_date_df) -> pd.DataFrame:
             quarter=args.quarter, 
             target_metrics=metrics, 
             logger=logger,
-            save_every_symbol=args.save_every_symbol,
-            append_file=args.append,
             latest_date_df=latest_date_df
         )
         logger.info(f'Scraping {statement}')
@@ -498,8 +496,8 @@ def scrape_wsj(symbols: list, args, logger, latest_date_df) -> pd.DataFrame:
             result_df = scraper.raw_data.copy()
         else:
             result_df = pd.merge(result_df, scraper.raw_data, on=['symbol','date'],how='outer')
-        scraper.raw_data.to_csv(f'temp/wsj_financials_{statement}.csv', index=False) 
-        result_df.to_csv(f'temp/wsj_financials_merged.csv', index=False) 
+        # scraper.raw_data.to_csv(f'temp/wsj_financials_{statement}.csv', index=False) 
+    result_df.to_csv(f'temp/wsj_financials_merged.csv', index=False) 
     if result_df.empty:
         logger.info('No latest data is available. All data in database are up-to-date.')
         return result_df
@@ -510,19 +508,6 @@ def scrape_wsj(symbols: list, args, logger, latest_date_df) -> pd.DataFrame:
     non_exist_columns = metrics.difference(columns)
     for col in non_exist_columns:
         result_df[col] = None
-    result_df.to_csv(outfile, index=False)
-    # elif args.page=='profile':
-    #     print('Not yet implemented')
-    #     raise SystemExit(1)
-    #     result = {
-    #         'symbol':[],
-    #         'sector':[],
-    #         'industry':[]
-    #     }
-    #     get_company_profile(result, args.outfile, symbols, logger)
-    # else:
-    #     handle_error(logger, 'Invalid page argument passed. page only accept "statement" or "profile"', exit=True)
-    #     return
     return result_df
 
 def main():
@@ -547,7 +532,7 @@ def main():
             handle_error(logger, str(e), exit=True)
     else:
         try:
-            response = supabase_client.table("idx_company_profile").select("symbol").eq('current_source',2).execute()
+            response = supabase_client.table("idx_active_company_profile").select("symbol").eq('current_source',2).execute()
             data = pd.DataFrame(response.data)
         except Exception as e:
             handle_error(logger, f'Could not obtain symbols from Supabase client. Error: {e}', exit=True)
