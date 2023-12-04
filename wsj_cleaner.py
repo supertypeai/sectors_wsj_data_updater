@@ -51,13 +51,10 @@ class WSJCleaner:
     
     def _create_wsj_format(self, data):
         def test_duplication():
-            try:
-                changed_symbols = self.profile_data.loc[self.profile_data.duplicated('symbol')]
-                assert len(changed_symbols)<1
+            changed_symbols = self.profile_data.loc[self.profile_data.duplicated('symbol')]
+            if len(changed_symbols)<1:
                 return True, changed_symbols.symbol.unique().tolist()
-            except AssertionError as e:
-                self.logger.error(f'Found symbol(s) with more than 1 wsj_format: {changed_symbols}')
-                return False, changed_symbols.symbol.unique().tolist()
+            return False, changed_symbols.symbol.unique().tolist()
         
         temp_df = data.copy()
         temp_df.loc[temp_df['total_cash_and_due_from_banks'].notna(), ['wsj_format']] = 4

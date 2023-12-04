@@ -286,8 +286,8 @@ class WSJScraper:
                     rows = table.find('tbody').find_all('tr')
                     
                     dblatest_true, dblatest_date = check_dbdate_is_latest(symbol, dates[0])
-                    # if dblatest_true:
-                    #     continue           
+                    if dblatest_true:
+                        continue           
                     # make a local dict for 'symbol'
                     dates = list(itertools.takewhile(lambda x: x>dblatest_date, dates)) if dblatest_date else dates
                     symbol_dd = {
@@ -547,8 +547,7 @@ def main():
             handle_error(logger, str(e), exit=True)
     else:
         try:
-            response = supabase_client.table("idx_company_profile").select("symbol").eq('current_source',2)\
-                .eq('wsj_format', 3).execute()
+            response = supabase_client.table("idx_company_profile").select("symbol").eq('current_source',2).execute()
             data = pd.DataFrame(response.data)
         except Exception as e:
             handle_error(logger, f'Could not obtain symbols from Supabase client. Error: {e}', exit=True)

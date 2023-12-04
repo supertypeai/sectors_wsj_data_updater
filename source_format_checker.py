@@ -47,7 +47,7 @@ class SourceFormatChecker():
             temp_data = pd.DataFrame(response.data)
             self.check_symbols.update(pd.DataFrame(response.data).symbol.tolist()) if not temp_data.empty else []
             # Check symbols with wsj_format 3 or 4 and source from YF on DB
-            response = client_table.select("symbol").eq('current_source',1).in_('wsj_format',[3,4]).execute()
+            response = client_table.select("symbol").lt('current_source',2).in_('wsj_format',[3,4]).execute()
             temp_data = pd.DataFrame(response.data)
             self.check_symbols.update(pd.DataFrame(response.data).symbol.tolist()) if not temp_data.empty else []
             ### Get symbols with no source
@@ -93,7 +93,7 @@ class SourceFormatChecker():
                 if found_flag: break
                 for statement, metric in zip(['balance-sheet','income-statement'],list(wsj_formats.keys())):
                     if found_flag: break
-                    tables = self.scrape_wsj_data(symbol, statement, period)
+                    tables = self._scrape_wsj_data(symbol, statement, period)
                     try:
                         table = tables[0].find('table')
                         rows = table.find('tbody').find_all('tr') 
@@ -108,7 +108,7 @@ class SourceFormatChecker():
                     except Exception as e:
                         # sourced from tables[0]
                         if isinstance(e, TypeError):
-                            msg = f'Data is not available for {symbol}'
+                            msg = f'Data is not available for {symbol} in {period}'
                         else:
                             msg = f'Could not identify error: {e}'
                         handle_error(self.logger, msg)
@@ -127,7 +127,7 @@ class SourceFormatChecker():
             else:
                 return True
         def check_symbol_in_wsj(symbol):
-            tables = self.scrape_wsj_data(symbol, 'income-statement', 'quarter')
+            tables = self._scrape_wsj_data(symbol, 'income-statement', 'quarter')
             if tables:
                 return True
             return False
