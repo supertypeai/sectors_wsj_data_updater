@@ -1,4 +1,4 @@
-from wsj_updater import init_logger, scrape_wsj, handle_error
+from wsj_updater import create_required_directories, init_logger, scrape_wsj, handle_error
 from wsj_cleaner import WSJCleaner
 from dotenv import load_dotenv
 from pathlib import Path
@@ -8,7 +8,8 @@ import os
 from supabase import create_client
 
 def main(args):
-    load_dotenv()    
+    load_dotenv()
+    create_required_directories()    
     logger = init_logger()
     url = os.getenv("SUPABASE_URL")
     key = os.getenv("SUPABASE_KEY")
