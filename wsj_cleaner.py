@@ -180,7 +180,7 @@ class WSJCleaner:
             self.clean_data = self._clean_nulls(self.raw_data)
         except Exception as e:
             self.logger.error(f'Failed to clean nulls columns. Error: {e}')
-            return
+            raise ValueError
         try:
             self.clean_data = self._enrich_columns(self.clean_data)
             self.clean_data = self.clean_data[self.columns]
@@ -194,9 +194,11 @@ class WSJCleaner:
             self.clean_data = self.clean_data.drop_duplicates()
             self.clean_flag = True
             self.logger.info('Finished cleaning')
+            return 1
         except Exception as e:
             self.logger.error(f'Failed to enrich columns. Error: {e}')
-            return
+            self.save_data_to_csv()
+            raise ValueError
     
     def upsert_data_to_database(self, batch_size=10):
         if self.clean_flag and self.supabase_client:
