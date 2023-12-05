@@ -99,7 +99,7 @@ fiscal_year = {
     'January-December':'31-Dec-'
 }
 
-CALLS = 12
+CALLS = 9
 TIME_PERIOD = 5
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36'}
 
@@ -126,10 +126,9 @@ def read_csv_file(file_path):
         raise FileNotFoundError(f"Could not find the file '{file_path}'. Please make sure the file exists and the path is correct.") from e
 
 class WSJScraper:
-    def __init__(self, symbols: list, statement: str, quarter: bool, target_metrics: list, logger, max_retry=3,
+    def __init__(self, symbols: list, quarter: bool, target_metrics: list, logger, max_retry=3,
                  save_every_symbol=False, append_file=None, completed_symbols_file=None, latest_date_df=None) -> None:
         self.symbols = symbols
-        self.statement = statement
         self.quarter = quarter
         self.target_metrics = target_metrics
         self.logger = logger
@@ -145,16 +144,15 @@ class WSJScraper:
         self.missing_symbols = set()
         self.append_file = append_file
         self.completed_symbols_file = completed_symbols_file
-        # self.supabase_client = supabase_client
         self.latest_date_df = latest_date_df  
         self.raw_data = None 
             
     @sleep_and_retry               
     @limits(calls=CALLS, period=TIME_PERIOD)
-    def get_statement_data(self) -> None:
+    def scrape_all_statements(self) -> None:
         symbol_dd=None
         df=pd.DataFrame()
-        def check_dbdate_is_latest(symbol, wsj_date):
+        def _check_dbdate_is_latest(symbol, wsj_date):
             if self.latest_date_df is None:
                 return False, None
             if symbol not in self.latest_date_df['symbol'].unique().tolist():
@@ -166,7 +164,7 @@ class WSJScraper:
                 return True, None
             
             return False, dblatest_date
-        def convert_abbr(row: str, eps_true: bool) -> float:
+        def _convert_abbr(row: str, eps_true: bool) -> float:
             """
             Convert abbreviated values in a row to their corresponding numerical values.
 
@@ -198,7 +196,7 @@ class WSJScraper:
                 return float(temp_row)
             
             return float(n)
-        def get_rowsdata(symbol_dict: dict, rows: list, data_length: int) -> None:
+        def _get_rowsdata(symbol_dict: dict, rows: list, data_length: int) -> None:
             """
             Extracts data from the rows of a table in the HTML response of a web page.
             Populates a symbol dictionary and a result dictionary with the extracted data.
@@ -238,64 +236,75 @@ class WSJScraper:
                 symbol_dict[col_name] = []
                 eps_true = True if 'eps' in col_name.lower() else False
                 # get the column values for this symbol 
-                symbol_dict[col_name] += [convert_abbr(col_values[i], eps_true) for i in range(data_length)]
+                symbol_dict[col_name] += [_convert_abbr(col_values[i], eps_true) for i in range(data_length)]
+                
+        def _get_statement_data(tables_list, symbol_dict, values_length):
+            for n,table in enumerate(tables_list):
+                try:
+                    rows = table.find('tbody').find_all('tr')
+                    _get_rowsdata(symbol_dict, rows, values_length)
+                except Exception as e:
+                    handle_error(self.logger, f'Cannot find table{n} for {symbol}, error: {e}')
+                
         period = 'quarter' if self.quarter else 'annual'
         if self.append_file:
             done_symbols = set(read_csv_file(self.completed_symbols_file)['symbol'].to_list())
             self.symbols = list(set(self.symbols) - done_symbols)
         for symbol in self.symbols:
             symbolw = symbol.split('.')[0]
-            url = f'https://www.wsj.com/market-data/quotes/ID/XIDX/{symbolw}/financials/{period}/{self.statement}'
-            # print(response.status_code)
-            # info = soup.find('th', {'class':'fiscalYr'})
-            # try:
-            #     if 'idr' in info.text.lower():
-            #         print(info.text, symbol)
-            #     else:
-            #         print(info.text, 'currency not found')
-            # except AttributeError:
-            #     print('could not found currency info', symbol)
-            # finding tables
-            try:
-                i = 0
-                while i < self.max_retry:
-                    response = requests.get(url, allow_redirects=True, headers=headers)
-                    soup = BeautifulSoup(response.text, 'lxml')
-                    table_div = soup.find('div', {'data-module-zone':self.statement.replace('-','_')}).find('div', {'id':'cr_cashflow'})
-                    if table_div.find_all('div', recursive=False) is not None:
-                        tables = table_div.find_all('div', recursive=False)[1:]
-                        i = self.max_retry
+            statements_div = []
+            notfound_flag = False
+            for statement in ['income-statement','balance-sheet','cash-flow']:
+                url = f'https://www.wsj.com/market-data/quotes/ID/XIDX/{symbolw}/financials/{period}/{statement}'
+                if not notfound_flag:
+                    try:
+                        i = 0
+                        while i < self.max_retry:
+                            response = requests.get(url, allow_redirects=True, headers=headers)
+                            soup = BeautifulSoup(response.text, 'lxml')
+                            table_div = soup.find('div', {'data-module-zone':statement.replace('-','_')}).find('div', {'id':'cr_cashflow'})
+                            if table_div.find_all('div', recursive=False) is not None:
+                                tables = table_div.find_all('div', recursive=False)[1:]
+                                statements_div.append(tables)
+                                i = self.max_retry
+                                break
+                            i += 1
+                            self.logger.debug(f'Retrying request to url for {symbol}')
+                            time.sleep(5)
+                    except AttributeError as e:
+                        handle_error(self.logger, f'Page does not exist for {symbol}')
+                        notfound_flag = True
                         break
-                    i += 1
-                    self.logger.debug(f'Retrying request to url for {symbol}')
-                    time.sleep(5)
-            except AttributeError as e:
-                handle_error(self.logger, f'Page does not exist for {symbol}')
-                self.missing_symbols.add(symbol)
+                else:
+                    self.missing_symbols.add(symbol)
+                    break
+            if notfound_flag:
                 continue
-            ### extract data from tables
             try:
-                table = tables[0].find('table')
-                if table:
-                    colheaders = table.find('thead').find_all('th')[:-1]
-                    fiscalYr = ''
-                    if not self.quarter:
-                        fiscalYr = colheaders[0].text.split('.')[0].replace('Fiscal year is','').strip()
-                        fiscalYr = fiscal_year[fiscalYr]
-                    dates = [dt.strptime(fiscalYr+col_head.text.strip(), "%d-%b-%Y") for col_head in colheaders[1:] if col_head.text.strip()!='']
-                    rows = table.find('tbody').find_all('tr')
+                # extract headers
+                table = statements_div[0][0].find('table')
+                colheaders = table.find('thead').find_all('th')[:-1]
+                fiscalYr = ''
+                if not self.quarter:
+                    fiscalYr = colheaders[0].text.split('.')[0].replace('Fiscal year is','').strip()
+                    fiscalYr = fiscal_year[fiscalYr]
+                dates = [dt.strptime(fiscalYr+col_head.text.strip(), "%d-%b-%Y") for col_head in colheaders[1:] if col_head.text.strip()!='']
+                dblatest_true, dblatest_date = _check_dbdate_is_latest(symbol, dates[0])
+                if dblatest_true:
+                    continue 
+                dates = list(itertools.takewhile(lambda x: x>dblatest_date, dates)) if dblatest_date else dates
+                # make a local dict for 'symbol'
+                symbol_dd = {
+                    'symbol':list(itertools.repeat(symbol, len(dates))),
+                    'date':dates
+                }
+                if len(statements_div) != 3:
+                    self.logger.warning(f"There are 3 statements but WSJUpdater class found {len(statements_div)}.")
+                ### extract statements
+                self.logger.debug(f"Trying to scrape {symbol}")
+                for tables_list in statements_div:
+                    _get_statement_data(tables_list, symbol_dd, len(dates))       
                     
-                    dblatest_true, dblatest_date = check_dbdate_is_latest(symbol, dates[0])
-                    if dblatest_true:
-                        continue           
-                    # make a local dict for 'symbol'
-                    dates = list(itertools.takewhile(lambda x: x>dblatest_date, dates)) if dblatest_date else dates
-                    symbol_dd = {
-                        'symbol':list(itertools.repeat(symbol, len(dates))),
-                        'date':dates
-                    }
-                    self.logger.debug(f"Trying to scrape {symbol}")
-                    get_rowsdata(symbol_dd, rows, len(dates))
             except Exception as e:
                 if isinstance(e, IndexError):
                     msg = f'Data is not available for {symbol}'
@@ -304,25 +313,6 @@ class WSJScraper:
                 handle_error(self.logger, msg)
                 self.missing_symbols.add(symbol)
                 continue
-            
-            if self.statement!='income-statement':
-                try:
-                    table = tables[1].find('table')
-                    rows = table.find('tbody').find_all('tr')
-                    if table:
-                        get_rowsdata(symbol_dd, rows, len(dates))
-                except Exception as e:
-                    handle_error(self.logger, f'Cannot find table2 for {symbol} table1 canceled, error: {e}')
-                    continue
-            if self.statement=='cash-flow':
-                try:
-                    table = tables[2].find('table')
-                    rows = table.find('tbody').find_all('tr')
-                    if table:
-                        get_rowsdata(symbol_dd, rows, len(dates))
-                except Exception as e:
-                    handle_error(self.logger, f'Cannot find table3 for {symbol} table1-2 canceled, error: {e}')
-                    continue
                 
             if symbol_dd:
                 result_colnames = set(list(self.result_dict.keys()))
@@ -340,7 +330,7 @@ class WSJScraper:
                         self.result_dict[col] += symbol_dd[col]
                     else:   
                         self.result_dict[col] += symbol_dd[col]
-            # check for columns that doesn't exist for this symbol
+                # check for columns that doesn't exist for this symbol
                 if len(nonexist_colnames)>0:
                     # self.logger.debug('Found non-existing columns')
                     for col in nonexist_colnames:
@@ -383,30 +373,6 @@ class WSJScraper:
                 continue
         self.raw_data = df
         self.raw_data['date'] = pd.to_datetime(self.raw_data['date'])
-        
-# @sleep_and_retry               
-# @limits(calls=CALLS, period=TIME_PERIOD)       
-# def get_company_profile(result_dict, outfile, symbols, logger):
-#     for symbol in symbols:
-#         symbolw = symbol.split('.')[0]
-#         url = f'https://www.wsj.com/market-data/quotes/ID/XIDX/{symbolw}/company-people'
-#         response = requests.get(url, allow_redirects=True, headers=headers)
-#         soup = BeautifulSoup(response.text, 'html5lib')
-        
-#         try:
-#             profile = soup.find('div', {'class':'cr_overview_data'}).find('ul', {'class':'cr_data_collection'}).find_all('li')[:2]
-#             sector = profile[0].find_all('div')[-1].find('span', {'class':'data_data'}).text.strip()
-#             industry = profile[1].find_all('div')[-1].find('span', {'class':'data_data'}).text.strip()
-#         except AttributeError:
-#             handle_error(logger, f'Could not extract {symbolw} profile')
-#             sector = ''
-#             industry = ''
-            
-#         result_dict['symbol'].append(symbol)
-#         result_dict['sector'].append(sector)
-#         result_dict['industry'].append(industry)
-#         df = pd.DataFrame(result_dict)
-#         df.to_csv(outfile, index=False)
         
 def create_required_directories():
     for dir in ['logs','temp','data']:
@@ -465,45 +431,25 @@ def init_logger(filename='logs/wsj_scraping.log') -> logging.Logger:
     return logger
 
 def scrape_wsj(symbols: list, args, logger, latest_date_df) -> pd.DataFrame:
-    date_now = pd.Timestamp.now(tz='Asia/Jakarta').strftime("%Y%m%d_%H%M%S")
-    period_id = 'q' if args.quarter else 'a'
-    outfile=f'data/wsj_financials_{period_id}_{date_now}.csv'
-    # result = {
-    #     'symbol':[],
-    #     'date':[]
-    # }
-    statement_metrics = {
-        'income-statement':income_metrics,
-        'balance-sheet': balance_metrics,
-        'cash-flow': cashflow_metrics
-    }
-    result_df = pd.DataFrame()
-    for statement, metrics in statement_metrics.items():
-        scraper = WSJScraper(
-            symbols=symbols, 
-            statement=statement, 
-            quarter=args.quarter, 
-            target_metrics=metrics, 
-            logger=logger,
-            latest_date_df=latest_date_df
-        )
-        logger.info(f'Scraping {statement}')
-        scraper.get_statement_data()
-        logger.info(f'Finished scraping {statement}')
-        if scraper.raw_data.empty:
-            continue
-        if result_df.empty:
-            result_df = scraper.raw_data.copy()
-        else:
-            result_df = pd.merge(result_df, scraper.raw_data, on=['symbol','date'],how='outer')
-        # scraper.raw_data.to_csv(f'temp/wsj_financials_{statement}.csv', index=False) 
-    result_df.to_csv(f'temp/wsj_financials_merged.csv', index=False) 
+    metrics = income_metrics | balance_metrics | cashflow_metrics
+    
+    scraper = WSJScraper(
+        symbols=symbols,
+        quarter=args.quarter,
+        target_metrics=metrics,
+        logger=logger,
+        latest_date_df=latest_date_df
+    )
+    scraper.scrape_all_statements()
+    logger.info(f'Finished scraping')
+    result_df = scraper.raw_data
     if result_df.empty:
         logger.info('No latest data is available. All data in database are up-to-date.')
         return result_df
+    result_df.to_csv(f'temp/wsj_financials_merged.csv', index=False)
     result_df = result_df.sort_values('symbol')
     result_df['date'] = pd.to_datetime(result_df['date'])
-    metrics = set(list(income_metrics.values())+list(balance_metrics.values())+list(cashflow_metrics.values()))
+    metrics = set(list(metrics.values()))
     columns = set(result_df.columns.to_list())
     non_exist_columns = metrics.difference(columns)
     for col in non_exist_columns:
@@ -542,17 +488,19 @@ def main():
             del temp_data
         except FileNotFoundError as e:
             handle_error(logger, str(e), exit=True)   
-    # if not args.outfile.endswith('.csv'):
-    #     handle_error(logger, 'Output file specified is not in .csv extension please provide with .csv extension', exit=True)
-    table_name = 'idx_financials_quarterly_wsj' if args.quarter else 'idx_financials_annual_wsj'
-    try:
-        response = (
-            supabase_client.rpc("get_last_date",params={"table_name":table_name}).execute()
-        )
-        latest_date_df = pd.DataFrame(response.data)
-        latest_date_df['last_date'] = pd.to_datetime(latest_date_df['last_date'])
-    except Exception as e:
-        handle_error(logger, f'Last date table could not be retrieved. Error caught: {e}')
+    
+    table_name = 'idx_financials_quarterly' if args.quarter else 'idx_financials_annual'
+    if not args.infile:
+        try:
+            response = (
+                supabase_client.rpc("get_last_date",params={"table_name":table_name}).execute()
+            )
+            latest_date_df = pd.DataFrame(response.data)
+            latest_date_df['last_date'] = pd.to_datetime(latest_date_df['last_date'])
+        except Exception as e:
+            handle_error(logger, f'Last date table could not be retrieved. Error caught: {e}')
+            latest_date_df = None
+    else:
         latest_date_df = None
     symbols = data['symbol'].to_list()
     del data
