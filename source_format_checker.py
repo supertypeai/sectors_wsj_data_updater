@@ -76,14 +76,14 @@ class SourceFormatChecker():
                 if tables:= try_from_url(url, statement):
                     return tables
                 i += 1
-                self.logger.debug(f'Retrying request to {period} url for {symbol}')
+                # self.logger.debug(f'Retrying request to {period} url for {symbol}')
                 time.sleep(1)
+            # Page exists but table doesn't, usually a refresh would fix it or it just doesn't exist
             if tables is None:
-                handle_error(self.logger, f'Page does not exist for {symbol}')
-                return None
+                raise ValueError
+        # Page doesn't exist (404)
         except AttributeError as e:
-            handle_error(self.logger, f'Sourced from error: page does not exist for {symbol}')
-            return None
+            raise AttributeError
         
     def check_wsj_format(self):
         ### extract data from tables
@@ -93,8 +93,8 @@ class SourceFormatChecker():
                 if found_flag: break
                 for statement, metric in zip(['balance-sheet','income-statement'],list(wsj_formats.keys())):
                     if found_flag: break
-                    tables = self._scrape_wsj_data(symbol, statement, period)
                     try:
+                        tables = self._scrape_wsj_data(symbol, statement, period)
                         table = tables[0].find('table')
                         rows = table.find('tbody').find_all('tr') 
                         rows = [row.find('td').text.strip() for row in rows if len(row.attrs['class'])<1]
@@ -109,6 +109,13 @@ class SourceFormatChecker():
                         # sourced from tables[0]
                         if isinstance(e, TypeError):
                             msg = f'Data is not available for {symbol} in {period}'
+                        elif isinstance(e, AttributeError):
+                            msg = f'Sourced from error: Page does not exist for {symbol}'
+                            handle_error(self.logger, msg)
+                            found_flag = True # contradicting to the var name but to indicate not to search through again
+                            break
+                        elif isinstance(e, ValueError):
+                            msg = f'Page exists but table does not exist for {symbol}'
                         else:
                             msg = f'Could not identify error: {e}'
                         handle_error(self.logger, msg)
