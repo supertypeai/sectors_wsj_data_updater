@@ -178,6 +178,7 @@ class WSJCleaner:
         self.raw_data = self._create_wsj_format(self.raw_data)    
         try:
             self.clean_data = self._clean_nulls(self.raw_data)
+            self.logger.debug('Finished first step')
         except Exception as e:
             self.logger.error(f'Failed to clean nulls columns. Error: {e}')
             raise ValueError
@@ -193,7 +194,7 @@ class WSJCleaner:
             self.clean_data[float_cols] = self.clean_data[float_cols].astype('float64')
             self.clean_data = self.clean_data.drop_duplicates()
             self.clean_flag = True
-            self.logger.info('Finished cleaning')
+            self.logger.debug('Finished second step')
             return 1
         except Exception as e:
             self.logger.error(f'Failed to enrich columns. Error: {e}')

@@ -291,6 +291,7 @@ class WSJScraper:
                 dates = [dt.strptime(fiscalYr+col_head.text.strip(), "%d-%b-%Y") for col_head in colheaders[1:] if col_head.text.strip()!='']
                 dblatest_true, dblatest_date = _check_dbdate_is_latest(symbol, dates[0])
                 if dblatest_true:
+                    # self.logger.debug(f"Data is already up to date for {symbol}")
                     continue 
                 dates = list(itertools.takewhile(lambda x: x>dblatest_date, dates)) if dblatest_date else dates
                 # make a local dict for 'symbol'
@@ -301,7 +302,7 @@ class WSJScraper:
                 if len(statements_div) != 3:
                     self.logger.warning(f"There are 3 statements but WSJUpdater class found {len(statements_div)}.")
                 ### extract statements
-                self.logger.debug(f"Trying to scrape {symbol}")
+                # self.logger.debug(f"Trying to scrape {symbol}")
                 for tables_list in statements_div:
                     _get_statement_data(tables_list, symbol_dd, len(dates))       
                     
@@ -309,7 +310,7 @@ class WSJScraper:
                 if isinstance(e, IndexError):
                     msg = f'Data is not available for {symbol}'
                 else:
-                    msg = f'Could not identify error: {e}'
+                    msg = f'Could not identify error for {symbol}: {e}'
                 handle_error(self.logger, msg)
                 self.missing_symbols.add(symbol)
                 continue
@@ -361,18 +362,19 @@ class WSJScraper:
                             assert all(df.columns==comp_df.columns)
                         except AssertionError:
                             handle_error(self.logger, 'Columns do not match (2). Cancelling append to file. Check code to fix.', exit=True)
-                else: 
-                    self.completed_symbols.add(symbol)
-                    complete_df = pd.DataFrame({'symbol':list(self.completed_symbols)})
-                    complete_df.to_csv(self.done_symbols_outfile, index=False)
+                # else: 
+                #     self.completed_symbols.add(symbol)
+                #     complete_df = pd.DataFrame({'symbol':list(self.completed_symbols)})
+                #     complete_df.to_csv(self.done_symbols_outfile, index=False)
                 if self.save_every_symbol:    
                     df.to_csv(f'temp/wsj_financials_{self.statement}.csv', index=False)
-                miss_symbols = pd.DataFrame({'symbol':list(self.missing_symbols)})
-                miss_symbols.to_csv(self.missing_symbols_outfile, index=False)
+                # miss_symbols = pd.DataFrame({'symbol':list(self.missing_symbols)})
+                # miss_symbols.to_csv(self.missing_symbols_outfile, index=False)
             else:
                 continue
         self.raw_data = df
-        self.raw_data['date'] = pd.to_datetime(self.raw_data['date'])
+        if not df.empty:
+            self.raw_data['date'] = pd.to_datetime(self.raw_data['date'])
         
 def create_required_directories():
     for dir in ['logs','temp','data']:
@@ -446,9 +448,7 @@ def scrape_wsj(symbols: list, args, logger, latest_date_df) -> pd.DataFrame:
     if result_df.empty:
         logger.info('No latest data is available. All data in database are up-to-date.')
         return result_df
-    result_df.to_csv(f'temp/wsj_financials_merged.csv', index=False)
     result_df = result_df.sort_values('symbol')
-    result_df['date'] = pd.to_datetime(result_df['date'])
     metrics = set(list(metrics.values()))
     columns = set(result_df.columns.to_list())
     non_exist_columns = metrics.difference(columns)

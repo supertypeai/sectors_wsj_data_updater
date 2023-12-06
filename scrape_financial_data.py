@@ -47,6 +47,7 @@ def main(args):
     result_df = scrape_wsj(symbols, args, logger, latest_date_df)
     if result_df.empty:
         raise SystemExit(0)
+    result_df.to_csv(f"data/wsj_raw_data_{pd.Timestamp.now(tz='Asia/Jakarta').strftime('%Y%m%d_%H%M%S')}.csv", index=False)
     logger.info('Finished scraping all statements. Raw data saved')
     ## Cleaning
     logger.info('Start cleaning')
@@ -58,7 +59,7 @@ def main(args):
         logger.warning('Cleaner identified change in wsj_format')
     ## Upsert
     logger.info('Saving data to database')
-    db_success_flag = wsj_cleaner.upsert_data_to_database(batch_size=10)
+    db_success_flag = wsj_cleaner.upsert_data_to_database(batch_size=100)
     logger.info('Sucessfully upsert data with Supabase client') if db_success_flag else logger.warning('Failed to upsert data with Supabase client')
     for fname in os.listdir('temp'):
         if 'financials' in fname:
@@ -68,7 +69,7 @@ def main(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Update financial data.")
     parser.add_argument("-a", "--annual", action="store_true", default=False, help="Update annual financial data")
-    parser.add_argument("-q", "--quarter", action="store_true", default=False, help="Update quarterfinancial data")
+    parser.add_argument("-q", "--quarter", action="store_true", default=False, help="Update quarter financial data")
 
     args = parser.parse_args()
     if args.annual and args.quarter:
