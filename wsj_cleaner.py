@@ -193,6 +193,7 @@ class WSJCleaner:
             self.clean_data[int_cols] = self.clean_data[int_cols].astype(float).astype('Int64')
             self.clean_data[float_cols] = self.clean_data[float_cols].astype('float64')
             self.clean_data = self.clean_data.drop_duplicates()
+            self.clean_data['source'] = 2 
             self.clean_flag = True
             self.logger.debug('Finished second step')
             return 1
