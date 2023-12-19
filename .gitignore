@@ -1,8 +1,5 @@
 .env
-**/test*
-__pycache__/
-.vscode/
-# data/**/wsj*
-**/*symbols*
-# temp/*
+newenv
+*.ipynb
+*.pyc
 /venv
