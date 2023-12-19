@@ -5,3 +5,4 @@ __pycache__/
 data/**/wsj*
 **/*symbols*
 temp/*
+/venv
