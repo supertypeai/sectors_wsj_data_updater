@@ -2,7 +2,7 @@
 **/test*
 __pycache__/
 .vscode/
-data/**/wsj*
+# data/**/wsj*
 **/*symbols*
-temp/*
+# temp/*
 /venv
