@@ -361,7 +361,7 @@ class WSJScraper:
                         try:
                             assert all(df.columns==comp_df.columns)
                         except AssertionError:
-                            handle_error(self.logger, 'Columns do not match (2). Cancelling append to file. Check code to fix.', exit=True)
+                            handle_error(self.logger, 'Columns do not match (2). Cancelling append to file. Check code to fix', exit=True)
                 # else: 
                 #     self.completed_symbols.add(symbol)
                 #     complete_df = pd.DataFrame({'symbol':list(self.completed_symbols)})
@@ -390,11 +390,11 @@ def init_args() -> argparse.Namespace:
     """
     parser = argparse.ArgumentParser()
     parser.add_argument("-i", "--infile", nargs="?", default=None,
-                        help='The path to a CSV file containing a list of symbols to scrape.')
+                        help='The path to a CSV file containing a list of symbols to scrape')
     parser.add_argument("-db", "--save_to_db", action='store_true', default=False,
                         help='Specifies whether to save the cleaned file to db or not. Defaults to not saving to DB, CSV files are always saved')
     parser.add_argument("-q", "--quarter", action='store_true', default=False,
-                        help='Specifies whether to scrape annually or quarterly financial data. Defaults to annually.')
+                        help='Specifies whether to scrape annually or quarterly financial data. Defaults to annually')
     parser.add_argument("-a", "--append", nargs="?", 
                         help="The path to a CSV file to append to. Used for resuming scraping.")
     parser.add_argument("--save_every_symbol", action='store_true', default=False,
@@ -421,11 +421,11 @@ def init_logger(filename='logs/wsj_scraping.log') -> logging.Logger:
     logger.setLevel(logging.DEBUG)
     
     console = logging.StreamHandler()
-    console.setLevel(logging.DEBUG)
+    console.setLevel(logging.INFO)
     console.setFormatter(logging.Formatter('%(levelname)s: %(message)s'))
     
-    file_handler = TimedRotatingFileHandler(filename, when='D', interval=21, backupCount=5, encoding='utf-8')
-    file_handler.setLevel(logging.INFO)
+    file_handler = TimedRotatingFileHandler(filename, when='D', interval=21, backupCount=1, encoding='utf-8')
+    file_handler.setLevel(logging.WARNING)
     file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
     
     logger.addHandler(console)
@@ -446,7 +446,7 @@ def scrape_wsj(symbols: list, args, logger, latest_date_df) -> pd.DataFrame:
     logger.info(f'Finished scraping')
     result_df = scraper.raw_data
     if result_df.empty:
-        logger.info('No latest data is available. All data in database are up-to-date.')
+        logger.info('No latest data is available. All data in database are up-to-date')
         return result_df
     result_df = result_df.sort_values('symbol')
     metrics = set(list(metrics.values()))
@@ -522,7 +522,9 @@ def main():
     if args.save_to_db:
         logger.info('Saving data to database')
         db_success_flag = wsj_cleaner.upsert_data_to_database()
-        logger.info('Sucessfully upsert data with Supabase client') if db_success_flag else logger.warning('Failed to upsert data with Supabase client')
+    if not db_success_flag:
+        logger.info('Saving raw data to CSV due to unsuccesful upsert')
+        result_df.to_csv(f"data/wsj_raw_data_{pd.Timestamp.now(tz='Asia/Jakarta').strftime('%Y%m%d_%H%M%S')}.csv", index=False)
     for fname in os.listdir('temp'):
         if 'financials' in fname:
             fpath = os.path.join('temp',fname)

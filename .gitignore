@@ -3,3 +3,8 @@ newenv
 *.ipynb
 *.pyc
 /venv
+/.vscode
+**cache**
+**test**
+/data/**wsj**
+/data/**_symbols.csv
