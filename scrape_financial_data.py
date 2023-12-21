@@ -47,8 +47,7 @@ def main(args):
     result_df = scrape_wsj(symbols, args, logger, latest_date_df)
     if result_df.empty:
         raise SystemExit(0)
-    result_df.to_csv(f"data/wsj_raw_data_{pd.Timestamp.now(tz='Asia/Jakarta').strftime('%Y%m%d_%H%M%S')}.csv", index=False)
-    logger.info('Finished scraping all statements. Raw data saved')
+    logger.info('Finished scraping all statements')
     ## Cleaning
     logger.info('Start cleaning')
     wsj_cleaner = WSJCleaner(result_df, supabase_client=supabase_client, 
@@ -60,7 +59,7 @@ def main(args):
     ## Upsert
     logger.info('Saving data to database')
     db_success_flag = wsj_cleaner.upsert_data_to_database(batch_size=100)
-    logger.info('Sucessfully upsert data with Supabase client') if db_success_flag else logger.warning('Failed to upsert data with Supabase client')
+    logger.info('Sucessfully upsert data with Supabase client') if db_success_flag else logger.error('Failed to upsert data with Supabase client')
     for fname in os.listdir('temp'):
         if 'financials' in fname:
             fpath = os.path.join('temp',fname)

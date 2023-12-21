@@ -244,9 +244,10 @@ class WSJCleaner:
             # else:
             db_success_flag, msg = batch_upsert(records)
             if db_success_flag:
+                self.logger.info('Sucessfully upsert data with Supabase client')
                 return True
             else:
-                self.logger.warning(f'Failed to upsert data to db. Error: {msg}')
+                self.logger.error(f'Failed to upsert data to db. Error: {msg}')
                 return False
         else:
             self.logger.info("Cannot upsert data to db, cleaning was unsuccessful. Saving to CSV file ...")
