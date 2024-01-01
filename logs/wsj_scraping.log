@@ -1866,3 +1866,5 @@
 2023-12-20 14:35:54,888 - WARNING - Page does not exist for FORZ.JK
 2023-12-20 14:35:54,889 - INFO - Finished scraping
 2023-12-20 14:35:54,889 - INFO - No latest data is available. All data in database are up-to-date.
+2024-01-01 01:00:48,105 - WARNING - Data is not available for BAYU.JK
+2024-01-01 01:00:52,583 - WARNING - Data is not available for PNLF.JK
