@@ -1868,3 +1868,14 @@
 2023-12-20 14:35:54,889 - INFO - No latest data is available. All data in database are up-to-date.
 2024-01-01 01:00:48,105 - WARNING - Data is not available for BAYU.JK
 2024-01-01 01:00:52,583 - WARNING - Data is not available for PNLF.JK
+2024-01-01 01:21:26,044 - WARNING - Data is not available for INOV.JK
+2024-01-01 01:22:01,690 - WARNING - Could not identify error for NAYZ.JK: 'NoneType' object has no attribute 'find'
+2024-01-01 01:22:17,467 - WARNING - Could not identify error for EURO.JK: 'NoneType' object has no attribute 'find'
+2024-01-01 01:22:18,696 - WARNING - Could not identify error for RMKO.JK: 'NoneType' object has no attribute 'find'
+2024-01-01 01:22:21,635 - WARNING - Could not identify error for SOUL.JK: 'NoneType' object has no attribute 'find'
+2024-01-01 01:25:12,913 - WARNING - Could not identify error for KING.JK: 'NoneType' object has no attribute 'find'
+2024-01-01 01:25:15,988 - WARNING - Could not identify error for RELF.JK: 'NoneType' object has no attribute 'find'
+2024-01-01 01:25:29,440 - WARNING - Upserting financial data with Supabase client failed. Retrying ...
+2024-01-01 01:25:35,649 - WARNING - Upserting financial data with Supabase client failed. Retrying ...
+2024-01-01 01:25:35,654 - ERROR - Failed to upsert data to db. Error: {'code': '22012', 'details': None, 'hint': None, 'message': 'division by zero'}
+2024-01-01 01:25:35,654 - ERROR - Failed to upsert data with Supabase client
