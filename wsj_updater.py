@@ -480,17 +480,18 @@ def main():
         handle_error(logger, f'Failed to initialize Supabase client. Error caught: {e}')
     logger.info("Starting Program")
     symbols = None
+    data = None
     if args.infile:
         try:
             data = read_csv_file(args.infile)
         except FileNotFoundError as e:
             handle_error(logger, str(e), exit=True)
-    else:
-        try:
-            response = supabase_client.table("idx_active_company_profile").select("symbol").eq('current_source',2).execute()
-            data = pd.DataFrame(response.data)
-        except Exception as e:
-            handle_error(logger, f'Could not obtain symbols from Supabase client. Error: {e}', exit=True)
+    # else:
+    #     try:
+    #         response = supabase_client.table("idx_active_company_profile").select("symbol").eq('current_source',2).execute()
+    #         data = pd.DataFrame(response.data)
+    #     except Exception as e:
+    #         handle_error(logger, f'Could not obtain symbols from Supabase client. Error: {e}', exit=True)
     if args.append:
         try:
             temp_data = read_csv_file(args.append)
@@ -499,19 +500,20 @@ def main():
             handle_error(logger, str(e), exit=True)   
     
     table_name = 'idx_financials_quarterly' if args.quarter else 'idx_financials_annual'
+    latest_date_df = None
     if not args.infile:
         try:
             response = (
-                supabase_client.rpc("get_last_date",params={"table_name":table_name}).execute()
+                supabase_client.rpc("get_outdated_symbols",params={"table_name":table_name, 'source':2}).execute()
             )
             latest_date_df = pd.DataFrame(response.data)
             latest_date_df['last_date'] = pd.to_datetime(latest_date_df['last_date'])
         except Exception as e:
-            handle_error(logger, f'Last date table could not be retrieved. Error caught: {e}')
-            latest_date_df = None
-    else:
-        latest_date_df = None
-    symbols = data['symbol'].to_list()
+            handle_error(logger, f'Last date table could not be retrieved. Error caught: {e}', exit=True)
+    if latest_date_df: # From db       
+        symbols = latest_date_df['symbol'].to_list()
+    else: # From input
+        symbols = data['symbol'].to_list()
     del data
     logger.info(f'Found {len(symbols)} symbols in the file')
     logger.info('Start scraping for quarterly data') if args.quarter else logger.info('Start scraping for annual data')
