@@ -5,6 +5,7 @@ import time
 import os
 import yfinance as yf
 from supabase import create_client
+from datetime import datetime as dt
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 from wsj_updater import handle_error, init_logger
@@ -54,6 +55,11 @@ class SourceFormatChecker():
             response = client_table.select("symbol").eq('current_source',-1).execute()
             temp_data = pd.DataFrame(response.data)
             self.missing_symbols.update(pd.DataFrame(response.data).symbol.tolist()) if not temp_data.empty else []
+            
+            ### Get db latest financial quarter date
+            response = self.supabase_client.rpc('get_latest_financial_quarter_date', params=None).execute()
+            max_date = pd.to_datetime(response.data)
+            self.earliest_date = max_date - pd.DateOffset(months=20) # Retention range
         del temp_data
         self.max_retry = max_retry
         self.format_data = {'symbol':[], 'wsj_format':[]}
@@ -129,14 +135,22 @@ class SourceFormatChecker():
     def check_null_source(self):
         def check_symbol_in_yf(symbol, session):
             ticker = yf.Ticker(symbol, session)
-            if ticker.quarterly_income_stmt.empty:
+            df = ticker.quarterly_income_stmt
+            if df.empty:
                 return False
             else:
-                return True
+                latest_date = df.columns[0]
+                if latest_date>self.earliest_date:
+                    return True
+                return False
         def check_symbol_in_wsj(symbol):
             tables = self._scrape_wsj_data(symbol, 'income-statement', 'quarter')
             if tables:
-                return True
+                table = tables[0].find('table')
+                colheaders = table.find('thead').find_all('th')[:-1]
+                latest_date = dt.strptime(colheaders[0].text.strip(), "%d-%b-%Y")
+                if latest_date>self.earliest_date:
+                    return True
             return False
         if len(self.missing_symbols)>0:
             temp_symbols = list(self.missing_symbols)

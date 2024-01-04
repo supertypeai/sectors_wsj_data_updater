@@ -146,10 +146,6 @@ class WSJScraper:
         self.completed_symbols_file = completed_symbols_file
         self.latest_date_df = latest_date_df  
         self.latest_date = None
-        if self.quarter:
-            self.earliest_date = (latest_date_df['last_date'].max() - pd.DateOffset(months=(latest_date_df['last_date'].max().month - 1) % 3)).replace(day=1) - pd.DateOffset(days=1)
-        else:
-            self.earliest_date = latest_date_df['last_date'].max() - pd.DateOffset(years=6)
         self.raw_data = None 
             
     @sleep_and_retry               
@@ -298,11 +294,11 @@ class WSJScraper:
                     fiscalYr = fiscal_year[fiscalYr]
                 dates = [dt.strptime(fiscalYr+col_head.text.strip(), "%d-%b-%Y") for col_head in colheaders[1:] if col_head.text.strip()!='']
                 dblatest_true, dblatest_date = _check_dbdate_is_latest(symbol, dates[0])
-                if dblatest_true or dates[0]<self.earliest_date:
+                if dblatest_true:
                     # self.logger.debug(f"Data is already up to date for {symbol}")
                     latest_flag = True
                     continue 
-                dates = list(itertools.takewhile(lambda x: x>dblatest_date and x>self.earliest_date, dates)) if dblatest_date else dates
+                dates = list(itertools.takewhile(lambda x: x>dblatest_date, dates)) if dblatest_date else dates
                 # make a local dict for 'symbol'
                 symbol_dd = {
                     'symbol':list(itertools.repeat(symbol, len(dates))),
