@@ -33,7 +33,9 @@ class WSJCleaner:
         self.columns = [
             'symbol','date','net_operating_cash_flow','total_assets','total_liabilities','total_current_liabilities',
             'total_equity','total_revenue','net_income','total_debt','stockholders_equity','ebit','ebitda',
-            'cash_and_short_term_investments','cash_only','total_cash_and_due_from_banks','diluted_eps','diluted_shares_outstanding',
+            'cash_and_short_term_investments','cash_only','total_cash_and_due_from_banks',
+            # 'diluted_eps',
+            'diluted_shares_outstanding',
             'gross_income','pretax_income','income_taxes','total_non_current_assets','free_cash_flow',
             'interest_expense_non_operating','operating_income'
         ]
@@ -188,10 +190,10 @@ class WSJCleaner:
             self.clean_data = self.clean_data.replace('-',None)
             ### Casting for upsert to db
             cast_cols = set(self.columns)
-            float_cols = ['diluted_eps']
-            int_cols = list(cast_cols.difference(set(['symbol','date']+float_cols)))
+            # float_cols = ['diluted_eps']
+            # int_cols = list(cast_cols.difference(set(['symbol','date']+float_cols)))
             self.clean_data[int_cols] = self.clean_data[int_cols].astype(float).astype('Int64')
-            self.clean_data[float_cols] = self.clean_data[float_cols].astype('float64')
+            # self.clean_data[float_cols] = self.clean_data[float_cols].astype('float64')
             self.clean_data = self.clean_data.drop_duplicates()
             self.clean_data['source'] = 2 
             self.clean_flag = True
