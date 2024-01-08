@@ -79,7 +79,6 @@ income_metrics = {
     'Pretax Income':'pretax_income', # -> For EBIT
     'Depreciation & Amortization Expense':'depreciation_and_amortization_expense', # -> For EBITDA
     'EBITDA':'ebitda',
-    'EPS (Diluted)':'diluted_eps',
     'Diluted Shares Outstanding':'diluted_shares_outstanding',
     'Net Income':'net_income',
     # 'EPS (Basic)':'basic_eps',
