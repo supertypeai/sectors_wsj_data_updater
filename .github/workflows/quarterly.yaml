@@ -27,6 +27,9 @@ jobs:
             SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
         run: python source_format_checker.py
 
+      - name: pull latest changes from remote repository
+        run: git pull origin main
+        
       - name: execute scrape_financial_data py script 
         env:
             SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
