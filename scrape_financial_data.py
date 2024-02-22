@@ -9,8 +9,9 @@ from supabase import create_client
 
 def main(args):
     load_dotenv()
-    create_required_directories()    
-    logger = init_logger()
+    create_required_directories()  
+    period = 'quarter' if args.quarter else 'annual'  
+    logger = init_logger(filename=f'logs/wsj_{period}_scraping.log')
     url = os.getenv("SUPABASE_URL")
     key = os.getenv("SUPABASE_KEY")
     # url,key = None, None
@@ -66,7 +67,7 @@ def main(args):
             Path.unlink(fpath)
             
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Update financial data.")
+    parser = argparse.ArgumentParser(description="Update financial data. If no argument is specified, the annual data will be updated.")
     parser.add_argument("-a", "--annual", action="store_true", default=False, help="Update annual financial data")
     parser.add_argument("-q", "--quarter", action="store_true", default=False, help="Update quarter financial data")
 
