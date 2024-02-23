@@ -191,7 +191,7 @@ class WSJCleaner:
             ### Casting for upsert to db
             cast_cols = set(self.columns)
             # float_cols = ['diluted_eps']
-            # int_cols = list(cast_cols.difference(set(['symbol','date']+float_cols)))
+            int_cols = list(cast_cols.difference(set(['symbol','date'])))
             self.clean_data[int_cols] = self.clean_data[int_cols].astype(float).astype('Int64')
             # self.clean_data[float_cols] = self.clean_data[float_cols].astype('float64')
             self.clean_data = self.clean_data.drop_duplicates()
