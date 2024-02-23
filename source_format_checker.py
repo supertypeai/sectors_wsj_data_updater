@@ -13,8 +13,6 @@ from pyrate_limiter import Duration, Limiter, RequestRate
 from requests import Session
 from requests_ratelimiter import LimiterMixin, MemoryQueueBucket
 
-headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36'}
-
 wsj_formats = {
     'Total Cash & Due from Banks':4,
     'Operating Income Before Interest Expense':3
@@ -37,6 +35,10 @@ class SourceFormatChecker():
         self.check_symbols = set()
         self.missing_symbols = set()
         self.found_data = {'symbol':[], 'current_source':[]}
+        self.proxies = {
+            'http': 'http://brd-customer-hl_ef20981d-zone-unblocker:sx124tuu8xlr@brd.superproxy.io:22225',
+            'https': 'http://brd-customer-hl_ef20981d-zone-unblocker:sx124tuu8xlr@brd.superproxy.io:22225'
+        }
         if not supabase_client:
             self.logger.error("Supabase client not provided")
             raise SystemExit(1)
@@ -66,7 +68,7 @@ class SourceFormatChecker():
         
     def _scrape_wsj_data(self, symbol, statement, period):
         def try_from_url(url, statement):
-            response = requests.get(url, allow_redirects=True, headers=headers)
+            response = requests.get(url, allow_redirects=True, verify=False)
             soup = BeautifulSoup(response.text, 'lxml')
             table_div = soup.find('div', {'data-module-zone':statement.replace('-','_')}).find('div', {'id':'cr_cashflow'})
             if table_div.find_all('div', recursive=False) is not None:

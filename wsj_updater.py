@@ -100,7 +100,6 @@ fiscal_year = {
 
 CALLS = 9
 TIME_PERIOD = 5
-headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36'}
 
 def handle_error(logger, msg: str, exit=False) -> None:
     """
@@ -146,6 +145,10 @@ class WSJScraper:
         self.latest_date_df = latest_date_df  
         self.latest_date = None
         self.raw_data = None 
+        self.proxies = {
+            'http': 'http://brd-customer-hl_ef20981d-zone-unblocker:sx124tuu8xlr@brd.superproxy.io:22225',
+            'https': 'http://brd-customer-hl_ef20981d-zone-unblocker:sx124tuu8xlr@brd.superproxy.io:22225'
+        }
             
     @sleep_and_retry               
     @limits(calls=CALLS, period=TIME_PERIOD)
@@ -263,7 +266,7 @@ class WSJScraper:
                     try:
                         i = 0
                         while i < self.max_retry:
-                            response = requests.get(url, allow_redirects=True, headers=headers)
+                            response = requests.get(url, allow_redirects=True, verify=False, proxies=self.proxies)
                             soup = BeautifulSoup(response.text, 'lxml')
                             table_div = soup.find('div', {'data-module-zone':statement.replace('-','_')}).find('div', {'id':'cr_cashflow'})
                             if table_div.find_all('div', recursive=False) is not None:
@@ -516,15 +519,20 @@ def main():
     if result_df.empty:
         raise SystemExit(0)
     logger.info('Finished scraping all statements')
-    logger.info('Start cleaning')
-    wsj_cleaner = WSJCleaner(result_df, supabase_client=supabase_client, 
-                             quarter=args.quarter, table_name=table_name, logger=logger)
-    wsj_cleaner.clean()
-    logger.info('Finished cleaning process')
-    if wsj_cleaner.changed_flag:
-        logger.warning('Cleaner identified change in wsj_format')
-    logger.info('Saving data to CSV')
-    wsj_cleaner.save_data_to_csv()
+    try:
+        logger.info('Start cleaning')
+        wsj_cleaner = WSJCleaner(result_df, supabase_client=supabase_client, 
+                                quarter=args.quarter, table_name=table_name, logger=logger)
+        wsj_cleaner.clean()
+        logger.info('Finished cleaning process')
+        if wsj_cleaner.changed_flag:
+            logger.warning('Cleaner identified change in wsj_format')
+        logger.info('Saving data to CSV')
+        wsj_cleaner.save_data_to_csv()
+    except Exception as e:
+        result_df.to_csv(f"data/wsj_raw_data_{pd.Timestamp.now(tz='Asia/Jakarta').strftime('%Y%m%d_%H%M%S')}.csv", index=False)
+        handle_error(logger, f'Error caught during cleaning process. Error: {e}', exit=True)
+        
     if args.save_to_db:
         logger.info('Saving data to database')
         db_success_flag = wsj_cleaner.upsert_data_to_database()
@@ -535,6 +543,6 @@ def main():
         if 'financials' in fname:
             fpath = os.path.join('temp',fname)
             Path.unlink(fpath)
-   
+            
 if __name__=='__main__':   
     main()
